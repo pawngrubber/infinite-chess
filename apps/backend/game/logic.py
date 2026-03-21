@@ -13,6 +13,13 @@ class Coordinate:
         # 1-indexed, wraps 1 to 18
         self.slice = ((slice_val - 1) % 18) + 1
 
+    @classmethod
+    def from_string(cls, s: str) -> 'Coordinate':
+        ring_map = {'A': Ring.A, 'B': Ring.B, 'C': Ring.C, 'D': Ring.D}
+        ring_str = s[0].upper()
+        slice_val = int(s[1:])
+        return cls(ring_map[ring_str], slice_val)
+
     def __eq__(self, other):
         if not isinstance(other, Coordinate):
             return False
@@ -22,6 +29,9 @@ class Coordinate:
         return hash((self.ring, self.slice))
 
     def __repr__(self):
+        return f"{self.ring.name}{self.slice}"
+        
+    def __str__(self):
         return f"{self.ring.name}{self.slice}"
 
 def get_rook_moves(coord: Coordinate) -> Set[Coordinate]:

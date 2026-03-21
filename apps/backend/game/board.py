@@ -49,6 +49,45 @@ class Board:
         self.en_passant_target: Optional[Coordinate] = None
         self.turn = Color.WHITE
 
+    def setup_board(self):
+        self.squares.clear()
+        
+        # WHITE PIECES (Slices 1, 2, 3, 4)
+        # Slice 1: R, N, B, Q
+        self.add_piece(Coordinate(Ring.A, 1), Piece(Color.WHITE, PieceType.ROOK, direction=1))
+        self.add_piece(Coordinate(Ring.B, 1), Piece(Color.WHITE, PieceType.KNIGHT, direction=1))
+        self.add_piece(Coordinate(Ring.C, 1), Piece(Color.WHITE, PieceType.BISHOP, direction=1))
+        self.add_piece(Coordinate(Ring.D, 1), Piece(Color.WHITE, PieceType.QUEEN, direction=1))
+        
+        # Slice 2: K, B, N, R
+        self.add_piece(Coordinate(Ring.A, 2), Piece(Color.WHITE, PieceType.KING, direction=1))
+        self.add_piece(Coordinate(Ring.B, 2), Piece(Color.WHITE, PieceType.BISHOP, direction=1))
+        self.add_piece(Coordinate(Ring.C, 2), Piece(Color.WHITE, PieceType.KNIGHT, direction=1))
+        self.add_piece(Coordinate(Ring.D, 2), Piece(Color.WHITE, PieceType.ROOK, direction=1))
+        
+        # Slices 3 & 4: Pawns
+        for r in Ring:
+            self.add_piece(Coordinate(r, 3), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+            self.add_piece(Coordinate(r, 4), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+            
+        # BLACK PIECES (Slices 10, 11, 12, 13)
+        # Slice 10: R, N, B, Q
+        self.add_piece(Coordinate(Ring.A, 10), Piece(Color.BLACK, PieceType.ROOK, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 10), Piece(Color.BLACK, PieceType.KNIGHT, direction=-1))
+        self.add_piece(Coordinate(Ring.C, 10), Piece(Color.BLACK, PieceType.BISHOP, direction=-1))
+        self.add_piece(Coordinate(Ring.D, 10), Piece(Color.BLACK, PieceType.QUEEN, direction=-1))
+        
+        # Slice 11: K, B, N, R
+        self.add_piece(Coordinate(Ring.A, 11), Piece(Color.BLACK, PieceType.KING, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 11), Piece(Color.BLACK, PieceType.BISHOP, direction=-1))
+        self.add_piece(Coordinate(Ring.C, 11), Piece(Color.BLACK, PieceType.KNIGHT, direction=-1))
+        self.add_piece(Coordinate(Ring.D, 11), Piece(Color.BLACK, PieceType.ROOK, direction=-1))
+        
+        # Slices 12 & 13: Pawns
+        for r in Ring:
+            self.add_piece(Coordinate(r, 12), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+            self.add_piece(Coordinate(r, 13), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+
     def get_tile_color(self, coord: Coordinate) -> str:
         colors = ["RED", "GREEN", "YELLOW", "BLUE"]
         return colors[(coord.ring.value + coord.slice) % 4]
