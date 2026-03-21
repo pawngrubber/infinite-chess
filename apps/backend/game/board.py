@@ -206,6 +206,9 @@ class Board:
             new_board.add_piece(sq, new_pc)
         
         piece = new_board.get_piece(move.start)
+        if not piece:
+            return new_board
+            
         new_board.remove_piece(move.start)
         
         if move.is_en_passant:
