@@ -33,9 +33,12 @@ Movement rules are based on standard chess but adapted to the color-tiled geomet
 - Due to the board's topology, the King can transition between different "loops" of the lemniscate.
 
 ### Pawns
-- Move "forward" toward the opponent's starting side.
-- **Promotion**: Occurs when a pawn reaches the "opposing royal tile row" (where the opponent's King/Queen started).
-- **En Passant**: Mandatory (as per r/AnarchyChess tradition).
+- **Movement**: Move one tile "forward" toward the opponent's starting side.
+- **Directionality (The Heading Marker)**: In the middle intersection of the lemniscate, "forward" can be ambiguous. Pawns must always continue in their original direction. To track this, pieces should have a physical or digital marker indicating their current heading.
+- **Promotion**: Occurs when a pawn reaches the **opposing royal tile row** (the row where the opponent's King and Queen were originally stationed).
+- **Distance**: On the infinity board, promotion typically requires moving **10 spaces** forward from the starting position.
+- **En Passant**: Mandatory (as per r/AnarchyChess tradition). It follows standard logic but can occur in geometrically varied positions due to the board's curve.
+
 
 ## 3. Special Mechanics
 - **Royal Lineup Tiles**: Special tiles where standard color connectivity might appear to conflict. These are treated as standard tiles for movement to maintain game flow.
