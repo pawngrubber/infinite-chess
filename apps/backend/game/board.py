@@ -19,6 +19,7 @@ class Piece:
         self.color = color
         self.piece_type = piece_type
         self.direction = direction # For pawns: +1 or -1 along the slice
+        self.moves_made = 0
 
     def __repr__(self):
         return f"{self.color.name[0]}{self.piece_type.name[0]}"
@@ -48,6 +49,10 @@ class Board:
         self.en_passant_target: Optional[Coordinate] = None
         self.turn = Color.WHITE
 
+    def get_tile_color(self, coord: Coordinate) -> str:
+        colors = ["RED", "GREEN", "YELLOW", "BLUE"]
+        return colors[(coord.ring.value + coord.slice) % 4]
+
     def add_piece(self, coord: Coordinate, piece: Piece):
         self.squares[coord] = piece
 
@@ -66,26 +71,24 @@ class Board:
         for dr, ds in directions:
             r = start.ring.value
             s = start.slice
-            # We must detect infinite loop to prevent infinite recursion
             visited = set()
             while True:
                 r += dr
                 s += ds
                 
-                # Check bounds for ring
                 if r < Ring.A.value or r > Ring.D.value:
                     break
                 
                 curr = Coordinate(Ring(r), s)
                 if curr in visited:
-                    break # Reached start or cycled
+                    break 
                 visited.add(curr)
 
                 target_piece = self.get_piece(curr)
                 if target_piece:
                     if target_piece.color != piece.color:
                         moves.add(Move(start, curr, is_capture=True))
-                    break # Blocked by any piece
+                    break 
                 else:
                     moves.add(Move(start, curr))
         return moves
@@ -98,12 +101,9 @@ class Board:
         moves = set()
 
         if piece.piece_type == PieceType.ROOK:
-            # Slices move along the ring (dr=0, ds=1 or -1)
-            # Rings move along the slice (dr=1 or -1, ds=0)
             moves |= self._slide_moves(coord, piece, [(0, 1), (0, -1), (1, 0), (-1, 0)])
 
         elif piece.piece_type == PieceType.BISHOP:
-            # Diagonals move through both
             moves |= self._slide_moves(coord, piece, [(1, 1), (1, -1), (-1, 1), (-1, -1)])
 
         elif piece.piece_type == PieceType.QUEEN:
@@ -124,27 +124,32 @@ class Board:
         elif piece.piece_type == PieceType.PAWN:
             forward_coord = Coordinate(coord.ring, coord.slice + piece.direction)
             if self.is_empty(forward_coord):
-                moves.add(Move(coord, forward_coord))
-                # Double push (simple logic: assuming if it hasn't moved yet it's on starting square, 
-                # but in infinite chess, let's just say it can if it's on some specific lines or just omit for now, 
-                # wait, let's allow it if it's on its starting slice, say slice 2 or 17? We need to know if it moved.
-                # For TDD we can add double push later, let's just do single push and captures)
+                if piece.moves_made >= 9: # 10th move promotion
+                    moves.add(Move(coord, forward_coord, promotion=PieceType.QUEEN))
+                else:
+                    moves.add(Move(coord, forward_coord))
+                
+                # Double push
+                if piece.moves_made == 0:
+                    double_forward = Coordinate(coord.ring, coord.slice + piece.direction * 2)
+                    if self.is_empty(double_forward):
+                        moves.add(Move(coord, double_forward))
 
             # Captures
             for dr in [-1, 1]:
                 if Ring.A.value <= coord.ring.value + dr <= Ring.D.value:
                     cap_coord = Coordinate(Ring(coord.ring.value + dr), coord.slice + piece.direction)
                     target = self.get_piece(cap_coord)
+                    is_promotion = piece.moves_made >= 9
+                    
                     if target and target.color != piece.color:
-                        moves.add(Move(coord, cap_coord, is_capture=True))
+                        moves.add(Move(coord, cap_coord, is_capture=True, promotion=PieceType.QUEEN if is_promotion else None))
                     elif cap_coord == self.en_passant_target:
                         moves.add(Move(coord, cap_coord, is_capture=True, is_en_passant=True))
 
         return moves
 
     def is_square_attacked(self, coord: Coordinate, by_color: Color) -> bool:
-        # Check all pieces of by_color and see if their pseudo-legal moves include 'coord'
-        # Since pseudo legal generates captures, we can just check if any end == coord
         for square, piece in self.squares.items():
             if piece.color == by_color:
                 for move in self.get_pseudo_legal_moves(square):
@@ -165,27 +170,6 @@ class Board:
         enemy_color = Color.BLACK if color == Color.WHITE else Color.WHITE
         return self.is_square_attacked(king_pos, enemy_color)
 
-    def make_move(self, move: Move) -> 'Board':
-        # Returns a new board state for testing legality
-        new_board = Board()
-        # Copy pieces
-        for sq, pc in self.squares.items():
-            new_board.add_piece(sq, pc)
-        
-        piece = new_board.get_piece(move.start)
-        new_board.remove_piece(move.start)
-        
-        if move.is_en_passant:
-            # Captured pawn is behind the end coordinate based on moving piece direction
-            cap_coord = Coordinate(move.end.ring, move.end.slice - piece.direction)
-            new_board.remove_piece(cap_coord)
-            
-        new_board.add_piece(move.end, piece)
-        new_board.turn = Color.BLACK if self.turn == Color.WHITE else Color.WHITE
-        
-        # En passant target logic can be set here if double move was made, omitted for basic legality check
-        return new_board
-
     def get_legal_moves(self, coord: Coordinate) -> Set[Move]:
         piece = self.get_piece(coord)
         if not piece or piece.color != self.turn:
@@ -200,3 +184,38 @@ class Board:
                 legal_moves.add(move)
                 
         return legal_moves
+
+    def get_all_legal_moves(self, color: Color) -> Set[Move]:
+        moves = set()
+        for sq, piece in self.squares.items():
+            if piece.color == color:
+                moves |= self.get_legal_moves(sq)
+        return moves
+
+    def is_checkmate(self, color: Color) -> bool:
+        return self.is_in_check(color) and len(self.get_all_legal_moves(color)) == 0
+
+    def is_stalemate(self, color: Color) -> bool:
+        return not self.is_in_check(color) and len(self.get_all_legal_moves(color)) == 0
+
+    def make_move(self, move: Move) -> 'Board':
+        new_board = Board()
+        for sq, pc in self.squares.items():
+            new_pc = Piece(pc.color, pc.piece_type, pc.direction)
+            new_pc.moves_made = pc.moves_made
+            new_board.add_piece(sq, new_pc)
+        
+        piece = new_board.get_piece(move.start)
+        new_board.remove_piece(move.start)
+        
+        if move.is_en_passant:
+            cap_coord = Coordinate(move.end.ring, move.end.slice - piece.direction)
+            new_board.remove_piece(cap_coord)
+            
+        if move.promotion:
+            piece.piece_type = move.promotion
+            
+        piece.moves_made += 1
+        new_board.add_piece(move.end, piece)
+        new_board.turn = Color.BLACK if self.turn == Color.WHITE else Color.WHITE
+        return new_board

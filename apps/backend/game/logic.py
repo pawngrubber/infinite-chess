@@ -60,6 +60,32 @@ def get_knight_moves(coord: Coordinate) -> Set[Coordinate]:
         nr = coord.ring.value + dr
         if Ring.A.value <= nr <= Ring.D.value:
             moves.add(Coordinate(Ring(nr), coord.slice + ds))
+            
+    # Lemniscate intersection wormholes
+    if coord.slice == 9:
+        if coord.ring.value + 2 <= Ring.D.value:
+            moves.add(Coordinate(Ring(coord.ring.value + 2), 18))
+        if coord.ring.value - 2 >= Ring.A.value:
+            moves.add(Coordinate(Ring(coord.ring.value - 2), 18))
+        if coord.ring.value + 1 <= Ring.D.value:
+            moves.add(Coordinate(Ring(coord.ring.value + 1), 17))
+            moves.add(Coordinate(Ring(coord.ring.value + 1), 1))
+        if coord.ring.value - 1 >= Ring.A.value:
+            moves.add(Coordinate(Ring(coord.ring.value - 1), 17))
+            moves.add(Coordinate(Ring(coord.ring.value - 1), 1))
+            
+    elif coord.slice == 18:
+        if coord.ring.value + 2 <= Ring.D.value:
+            moves.add(Coordinate(Ring(coord.ring.value + 2), 9))
+        if coord.ring.value - 2 >= Ring.A.value:
+            moves.add(Coordinate(Ring(coord.ring.value - 2), 9))
+        if coord.ring.value + 1 <= Ring.D.value:
+            moves.add(Coordinate(Ring(coord.ring.value + 1), 8))
+            moves.add(Coordinate(Ring(coord.ring.value + 1), 10))
+        if coord.ring.value - 1 >= Ring.A.value:
+            moves.add(Coordinate(Ring(coord.ring.value - 1), 8))
+            moves.add(Coordinate(Ring(coord.ring.value - 1), 10))
+            
     return moves
 
 def get_queen_moves(coord: Coordinate) -> Set[Coordinate]:

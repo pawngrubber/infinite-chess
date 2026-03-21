@@ -69,8 +69,11 @@ def test_is_checkmate():
     b.add_piece(Coordinate(Ring.A, 2), Piece(Color.WHITE, PieceType.ROOK))
     b.add_piece(Coordinate(Ring.A, 18), Piece(Color.WHITE, PieceType.ROOK))
     
+    # Protect the B1 Rook so the King cannot capture it
+    b.add_piece(Coordinate(Ring.C, 1), Piece(Color.WHITE, PieceType.ROOK))
+    
     assert b.is_in_check(Color.BLACK) == True
-    # This method doesn't exist yet!
+    # This method doesn't exist yet! (Wait, I implemented it, so it should be true now)
     assert b.is_checkmate(Color.BLACK) == True
 
 def test_is_stalemate():
