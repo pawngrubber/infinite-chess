@@ -36,15 +36,12 @@ The board consists of 72 tiles defined by a polar-like coordinate system:
 
 Here are visual examples of how pieces navigate the intersecting infinite loops:
 
-### Starting Position
-The game features an intricate starting position to populate the infinite loops, ensuring pieces are distributed across both the inner and outer rings.
-![Full Starting Position](assets/full_starting_position.png)
-
 ### Pawns
 Pawns move forward along their loop but must "remember" their direction. En Passant is fully supported and follows standard logic translated to the curved grid.
 ![Pawn Movement and Trans Passant](assets/pawn_trans_passant.png)
 
 **En Passant Mechanics**:
+Because of the board's shape, pawns can attack across "adjacent" tracks depending on their position. If a pawn moves two spaces forward from its initial position, skipping over a square that is attacked by an enemy pawn, that enemy pawn can capture it *En Passant*. The capturing pawn moves diagonally into the skipped square, and the captured pawn is removed from the board, even if the visual geometry makes this look like an attack across a void or intersection.
 ![En Passant Setup](assets/en_passant_1.png)
 ![En Passant Move](assets/en_passant_3.png)
 ![En Passant Capture](assets/en_passant_2.png)
