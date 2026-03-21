@@ -75,19 +75,20 @@ def test_en_passant():
     b.turn = Color.WHITE
     # White pawn on A4
     b.add_piece(Coordinate(Ring.A, 4), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-    # Black pawn on B5 (just double moved, target is B4)
-    b.add_piece(Coordinate(Ring.B, 5), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-    b.en_passant_target = Coordinate(Ring.B, 4)
+    # Black pawn on B4 (just double moved from B6, skipped B5)
+    b.add_piece(Coordinate(Ring.B, 4), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+    # The skipped square is the target
+    b.en_passant_target = Coordinate(Ring.B, 5)
     
     # Add White King so we can test legality
     b.add_piece(Coordinate(Ring.D, 18), Piece(Color.WHITE, PieceType.KING))
     
     moves = b.get_legal_moves(Coordinate(Ring.A, 4))
     
-    # Should have a move to B4
+    # Should have a move to B5
     found_ep = False
     for m in moves:
-        if m.end == Coordinate(Ring.B, 4) and m.is_en_passant:
+        if m.end == Coordinate(Ring.B, 5) and m.is_en_passant:
             found_ep = True
     assert found_ep == True
 
