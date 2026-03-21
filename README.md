@@ -26,7 +26,15 @@ A chess variant played on a lemniscate (figure-eight) board, where pieces can or
 - Board is rendered as a responsive SVG path for non-Euclidean movement.
 
 ## Movement Examples & Coordinate Geometry
-The unique lemniscate shape alters the standard movement paths and coordinate geometry. Here are visual examples of how pieces navigate the intersecting infinite loops:
+The unique lemniscate shape alters the standard movement paths and coordinate geometry. 
+
+### Coordinates
+The board consists of 72 tiles defined by a polar-like coordinate system:
+- **Rings (A-D)**: Lettered from the innermost ring (A) to the outermost ring (D).
+- **Slices (1-18)**: Numbered sequentially around the infinity loop, starting near the center intersection. Slices 1-7 wrap around the right hole, 8-11 traverse the intersection, and 12-18 wrap around the left hole.
+![Board Coordinates](assets/coordinates.png)
+
+Here are visual examples of how pieces navigate the intersecting infinite loops:
 
 ### Pawns
 Pawns move forward along their loop but must "remember" their direction.

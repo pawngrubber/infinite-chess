@@ -2,9 +2,16 @@
 
 Official rules for the Infinite Chess variant created by **PhoenixfischTheFish** on r/AnarchyChess.
 
-## 1. The Board Topology (Color Rules)
-The board is a non-Euclidean tiling defined by four colors: **Red (R), Yellow (Y), Blue (B), and Green (G)**.
+## 1. The Board Topology & Coordinates
+The board is a non-Euclidean tiling of 72 squares defined by four colors: **Red (R), Yellow (Y), Blue (B), and Green (G)**.
 
+### The Coordinate System
+The game uses a polar-lemniscate notation system to map the board's complex geometry:
+- **Rings (A, B, C, D)**: There are four concentric tracks. Ring 'A' is the innermost loop closest to the holes, progressing outward to ring 'D' on the exterior boundary.
+- **Slices (1 to 18)**: The board is divided into 18 radial segments that follow the path of the lemniscate. Slices 1-7 wrap around the right loop, 8-11 span the crossing intersection, and 12-18 wrap around the left loop.
+- A tile is uniquely identified by combining its ring and slice (e.g., **A1** is the innermost tile at the start of the right loop).
+
+### Color Connections
 - **Opposites**: Red is always opposite Yellow; Blue is always opposite Green.
 - **Connectivity**: Red tiles connect to Yellow tiles from adjacent sides; Blue connects to Green.
 - **Rotation**: The colors follow a clockwise rotation: **Red → Green → Yellow → Blue → Red**.
