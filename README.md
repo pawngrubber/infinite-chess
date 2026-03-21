@@ -24,3 +24,36 @@ A chess variant played on a lemniscate (figure-eight) board, where pieces can or
 - Matchmaking is handled in-memory by Django Channels.
 - Game state is synchronized via WebSockets.
 - Board is rendered as a responsive SVG path for non-Euclidean movement.
+
+## Movement Examples & Coordinate Geometry
+The unique lemniscate shape alters the standard movement paths and coordinate geometry. Here are visual examples of how pieces navigate the intersecting infinite loops:
+
+### Pawns
+Pawns move forward along their loop but must "remember" their direction.
+![Pawn Movement and Trans Passant](assets/pawn_trans_passant.png)
+
+### Knights
+Knights jump in an L-shape across the non-Euclidean curve.
+![Knight Center](assets/knight_center.png)
+![Knight Outer](assets/knight_outer.png)
+
+### Bishops
+Bishops move diagonally but their paths are confined by the geometry and tile colors.
+![Bishop Colors](assets/bishop_colors.png)
+![Bishop Loop](assets/bishop_loop.png)
+![Bishop Crossing](assets/bishop_cross.png)
+
+### Rooks
+Rooks orbit the loops in straight lines without crossing diagonals.
+![Rook Inner](assets/rook_inner.png)
+![Rook Outer](assets/rook_outer.png)
+
+### Queens
+Queens combine Rook and Bishop movements, capable of traversing both loops and diagonals.
+![Queen Loop](assets/queen_loop.png)
+![Queen Crossing](assets/queen_cross.png)
+
+### Kings
+Kings can move one tile in any direction, effectively transitioning paths seamlessly at intersections.
+![King Movement](assets/king_movement.png)
+
