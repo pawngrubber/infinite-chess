@@ -49,6 +49,11 @@ The board is a parity-corrected figure-eight manifold, ensuring a perfect checke
 
 <img src="assets/board_topology.svg" width="1000" alt="Board Topology">
 
+### True Starting Position
+Pieces are symmetrically mirrored across the two loops in a wedge formation.
+
+<img src="assets/starting_position_topology.svg" width="1000" alt="Starting Position Topology">
+
 ### Coordinates
 The board consists of 72 tiles defined by a polar-like coordinate system:
 - **Rings (A-D)**: Lettered from the innermost ring (A) to the outermost ring (D).
