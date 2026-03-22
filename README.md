@@ -44,7 +44,7 @@ infinite-chess/
 ## Movement Examples & Coordinate Geometry
 The unique lemniscate shape alters the standard movement paths and coordinate geometry. 
 
-### Manifold Topology
+### Manifold: Flawless Figure-Eight
 The board is a parity-corrected figure-eight manifold, ensuring a perfect checkerboard pattern even through the complex intersection.
 
 <img src="assets/board_topology.svg" width="1000" alt="Board Topology">
