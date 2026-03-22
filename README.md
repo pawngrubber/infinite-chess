@@ -73,7 +73,10 @@ Here are visual examples of how pieces navigate the intersecting infinite loops:
 The game features an intricate starting position to populate the infinite loops, ensuring pieces are distributed symmetrically in a wedge formation. The Rooks and Knights flank the Pawns on the outer rings, while the King, Queen, and Bishops line up in a single radial slice pointing toward the intersection. 
 
 *(Note: Due to the complex geometric nature of this layout, standard castling rules are currently not supported in this variant.)*
-<img src="assets/starting_position_topology.svg" width="1000" alt="True Starting Position">
+<img src="assets/starting_position_topology.svg" width="1000" alt="True Starting Position SVG">
+
+**Original Source of Inspiration (Physical Reference)**:
+<img src="assets/true_starting_position.jpeg" width="600" alt="Original Physical Board Reference">
 
 ## Game Rules
 - **The Board**: A 72-tile lemniscate board with 4 rings (A-D) and 18 slices.
