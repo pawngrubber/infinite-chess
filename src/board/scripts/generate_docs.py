@@ -8,35 +8,31 @@ from board.testing import get_captured_board, Scenario
 
 def main():
     test_dir = "tests/board"
-    # Single folder for all SVG clutter in this test group
-    assets_dir_name = "assets"
-    assets_dir = os.path.join(test_dir, assets_dir_name)
+    # Root folder for all SVG clutter in this test category
+    assets_root_name = "assets"
+    assets_root = os.path.join(test_dir, assets_root_name)
     
-    # 1. Cleanup old documentation and asset folders
+    # 1. Cleanup old documentation and assets
     print(f"Cleaning up old documentation and assets in {test_dir}...")
     for f in os.listdir(test_dir):
         file_path = os.path.join(test_dir, f)
-        # Remove old SVGs in root
         if f.endswith(".svg"):
             os.remove(file_path)
-        # Remove old MDs (except README)
         elif f.endswith(".md") and f != "README.md":
             os.remove(file_path)
-        # Remove old per-module asset folders (cleanup from previous attempt)
         elif f.endswith("_assets") and os.path.isdir(file_path):
             shutil.rmtree(file_path)
-        # Remove old generic 'visuals' directory if it exists
         elif f == "visuals" and os.path.isdir(file_path):
             shutil.rmtree(file_path)
 
-    # Ensure the consolidated assets dir exists and is empty for this run
-    if os.path.exists(assets_dir):
-        shutil.rmtree(assets_dir)
-    os.makedirs(assets_dir, exist_ok=True)
+    # Re-initialize the consolidated assets root
+    if os.path.exists(assets_root):
+        shutil.rmtree(assets_root)
+    os.makedirs(assets_root, exist_ok=True)
     
-    # Ensure it's ignored by git
+    # Ensure the root assets folder is ignored by git
     gitignore_path = ".gitignore"
-    ignore_entry = f"{test_dir}/{assets_dir_name}/\n"
+    ignore_entry = f"{test_dir}/{assets_root_name}/\n"
     with open(gitignore_path, "a+") as gf:
         gf.seek(0)
         content = gf.read()
@@ -50,6 +46,10 @@ def main():
         module_name = test_file[:-3]
         module_path = os.path.join(test_dir, test_file)
         md_file = os.path.join(test_dir, f"{module_name}.md")
+        
+        # Subdirectory for this specific module's SVGs
+        module_assets_dir = os.path.join(assets_root, module_name)
+        os.makedirs(module_assets_dir, exist_ok=True)
         
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
@@ -81,9 +81,8 @@ def main():
             
             board = get_captured_board() or Board()
             
-            # Use module name in SVG filename to avoid collisions in the shared assets folder
-            svg_filename = f"{module_name}_{func.__name__}.svg"
-            svg_path = os.path.join(assets_dir, svg_filename)
+            svg_filename = f"{func.__name__}.svg"
+            svg_path = os.path.join(module_assets_dir, svg_filename)
             
             with open(svg_path, "w") as f:
                 f.write(board_to_svg(board))
@@ -92,11 +91,12 @@ def main():
             md_content.append(f"**Test**: `{func.__name__}`")
             md_content.append(f"\n**Description**:\n{s.description}")
             md_content.append(f"\n**Pass Condition (Boolean Check)**:\n{s.pass_condition}")
-            md_content.append(f"\n<img src='{assets_dir_name}/{svg_filename}' width='600'>\n")
+            # Relative path from the .md file to the nested SVG
+            md_content.append(f"\n<img src='{assets_root_name}/{module_name}/{svg_filename}' width='600'>\n")
             
         with open(md_file, "w") as f:
             f.write("\n".join(md_content))
-        print(f"Generated {md_file} ({len(functions)} scenarios)")
+        print(f"Generated {md_file} ({len(functions)} scenarios in {assets_root_name}/{module_name}/)")
 
 if __name__ == "__main__":
     main()
