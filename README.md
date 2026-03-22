@@ -47,7 +47,7 @@ The unique lemniscate shape alters the standard movement paths and coordinate ge
 ### Manifold Topology
 The board is a parity-corrected figure-eight manifold, ensuring a perfect checkerboard pattern even through the complex intersection.
 
-<img src="assets/board_topology.svg" width="600" alt="Board Topology">
+<img src="assets/board_topology.svg" width="800" alt="Board Topology">
 
 ### Coordinates
 The board consists of 72 tiles defined by a polar-like coordinate system:
