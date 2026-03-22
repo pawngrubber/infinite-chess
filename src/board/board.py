@@ -324,3 +324,7 @@ class Board:
     def get_legal_moves(self, coord: Coordinate) -> Set[Move]:
         """ Compatibility method for pieces """
         return {m for m in self.generate_legal_moves() if m.start == coord}
+
+    def _repr_svg_(self, highlights: Dict[Coordinate, str] = None, arrows: Iterable[any] = None) -> str:
+        from .svg import board_to_svg
+        return board_to_svg(self, highlights=highlights, arrows=arrows)
