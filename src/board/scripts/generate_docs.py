@@ -8,6 +8,18 @@ from board.testing import get_captured_board, Scenario
 def main():
     test_dir = "tests/board"
     visuals_dir = os.path.join(test_dir, "visuals")
+    
+    # 1. Cleanup old documentation to avoid clutter
+    print(f"Cleaning up old documentation in {test_dir}...")
+    for f in os.listdir(test_dir):
+        if f.endswith(".md") and f != "README.md":
+            os.remove(os.path.join(test_dir, f))
+    
+    if os.path.exists(visuals_dir):
+        for f in os.listdir(visuals_dir):
+            if f.endswith(".svg"):
+                os.remove(os.path.join(visuals_dir, f))
+    
     os.makedirs(visuals_dir, exist_ok=True)
 
     test_files = [f for f in os.listdir(test_dir) if f.startswith("test_") and f.endswith(".py")]
