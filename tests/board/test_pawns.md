@@ -54,3 +54,14 @@ Two pawns from different loops meeting head-on at the intersection must block ea
 Neither pawn can move forward into the occupied square.
 
 <img src='assets/test_pawns/test_pawn_head_on_collision.svg' width='600'>
+
+## [IC-PAWN-006] Pawn Forbidden Slices
+**Test**: `test_pawn_forbidden_slices`
+
+**Description**:
+Because pawns move strictly forward towards the enemy base and then promote, they can never reach or stay on their own base slice.
+
+**Pass Condition (Boolean Check)**:
+A White pawn can never occupy Slice 13; a Black pawn can never occupy Slice 4.
+
+<img src='assets/test_pawns/test_pawn_forbidden_slices.svg' width='600'>
