@@ -15,13 +15,13 @@ def polar_to_cartesian(cx, cy, r, angle):
     }
 
 def generate_topology_svg(filename):
-    # Wider aspect ratio (2:1) to fit the horizontal manifold with less vertical padding
-    width, height = 2400, 1200
+    # Adjusted to 2200 width as requested, with a 2:1 aspect ratio
+    width, height = 2200, 1100
     dwg = svgwrite.Drawing(filename, size=(width, height), viewBox=f"0 0 {width} {height}")
     dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='#000000'))
     
-    # Center the group in the 2400x1200 canvas
-    main_group = dwg.g(id='board-group', transform=f'translate({width/2}, {height/2}) rotate(45) translate(-200, -200)')
+    # translate to center, then scale slightly (0.9) to ensure a safe margin inside the SVG boundaries
+    main_group = dwg.g(id='board-group', transform=f'translate({width/2}, {height/2}) scale(0.9) rotate(45) translate(-200, -200)')
     dwg.add(main_group)
 
     tile_size = 100
