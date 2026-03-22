@@ -58,7 +58,7 @@ Pieces are symmetrically mirrored across the two loops in a wedge formation.
 The board consists of 72 tiles defined by a polar-like coordinate system:
 - **Rings (A-D)**: Lettered from the innermost ring (A) to the outermost ring (D).
 - **Slices (1-18)**: Numbered sequentially around the infinity loop, starting near the center intersection. Slices 1-7 wrap around the right hole, 8-11 traverse the intersection, and 12-18 wrap around the left hole.
-![Board Coordinates](assets/coordinates.png)
+<img src="assets/coordinate_mapping.svg" width="1000" alt="Board Coordinates">
 
 Here are visual examples of how pieces navigate the intersecting infinite loops:
 
