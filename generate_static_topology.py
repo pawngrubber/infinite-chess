@@ -15,13 +15,13 @@ def polar_to_cartesian(cx, cy, r, angle):
     }
 
 def generate_topology_svg(filename):
-    # Set a wider aspect ratio (1600x1000) to fit the horizontal figure-eight
-    width, height = 1600, 1000
+    # Significantly wider canvas to accommodate the 45-degree rotated figure-eight
+    width, height = 2400, 1600
     dwg = svgwrite.Drawing(filename, size=(width, height), viewBox=f"0 0 {width} {height}")
     dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='#000000'))
     
-    # Translate to 800 (half of 1600) and 500 (half of 1000)
-    # The 'rotate(45) translate(-200, -200)' establishes the diamond crossing at this center
+    # Center the group in the 2400x1600 canvas.
+    # No extra scale needed if the canvas is large enough, which makes pieces crisper.
     main_group = dwg.g(id='board-group', transform=f'translate({width/2}, {height/2}) rotate(45) translate(-200, -200)')
     dwg.add(main_group)
 
