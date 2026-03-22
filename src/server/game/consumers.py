@@ -27,7 +27,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
             
             # Initialize board
             board = Board()
-            board.setup_board()
+            board.reset()
             active_games[game_id] = board
             
             # Notify both players they are matched
@@ -70,21 +70,32 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
             try:
                 start = Coordinate.from_dict(data['move']['start'])
                 end = Coordinate.from_dict(data['move']['end'])
-                # Find the legal move in the board's legal moves
-                legal_moves = board.get_legal_moves(start)
-                move_to_apply = next((m for m in legal_moves if m.end == end), None)
+                
+                # Use the new python-chess style API
+                move_to_apply = next((m for m in board.legal_moves if m.start == start and m.end == end), None)
                 
                 if move_to_apply:
-                    new_board = board.make_move(move_to_apply)
-                    active_games[game_id] = new_board
+                    board.push(move_to_apply)
                     
+                    # Check for game over
+                    game_over = False
+                    result = None
+                    if board.is_checkmate():
+                        game_over = True
+                        result = f"WINNER: {self.color}"
+                    elif board.is_stalemate():
+                        game_over = True
+                        result = "DRAW: Stalemate"
+
                     # Broadcast update
                     await self.channel_layer.group_send(
                         game_id,
                         {
                             'type': 'game_update',
-                            'board': new_board.to_dict(),
-                            'last_move': data['move']
+                            'board': board.to_dict(),
+                            'last_move': data['move'],
+                            'game_over': game_over,
+                            'result': result
                         }
                     )
                 else:
@@ -96,5 +107,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'update',
             'board': event['board'],
-            'last_move': event.get('last_move')
+            'last_move': event.get('last_move'),
+            'game_over': event.get('game_over'),
+            'result': event.get('result')
         }))

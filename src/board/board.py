@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Set, Optional, Tuple
+from typing import Dict, List, Set, Optional, Tuple, Iterator, Iterable
 from .logic import Coordinate, Ring, get_knight_moves, get_king_moves
 
 class Color(Enum):
@@ -60,11 +60,47 @@ class Move:
     def __hash__(self):
         return hash((self.start, self.end, self.promotion))
 
+class LegalMoveGenerator:
+    def __init__(self, board: 'Board'):
+        self.board = board
+
+    def __bool__(self) -> bool:
+        return any(self.board.generate_legal_moves())
+
+    def count(self) -> int:
+        return len(list(self))
+
+    def __iter__(self) -> Iterator[Move]:
+        return self.board.generate_legal_moves()
+
+    def __contains__(self, move: Move) -> bool:
+        return self.board.is_legal(move)
+
+class PseudoLegalMoveGenerator:
+    def __init__(self, board: 'Board'):
+        self.board = board
+
+    def __iter__(self) -> Iterator[Move]:
+        return self.board.generate_pseudo_legal_moves()
+
 class Board:
     def __init__(self):
         self.squares: Dict[Coordinate, Piece] = {}
         self.en_passant_target: Optional[Coordinate] = None
         self.turn = Color.WHITE
+        self.move_stack: List[Move] = []
+        self._state_stack: List[Tuple[Optional[Coordinate], Color]] = [] # (ep_target, turn)
+
+    @property
+    def legal_moves(self) -> LegalMoveGenerator:
+        return LegalMoveGenerator(self)
+
+    @property
+    def pseudo_legal_moves(self) -> PseudoLegalMoveGenerator:
+        return PseudoLegalMoveGenerator(self)
+
+    def piece_at(self, coord: Coordinate) -> Optional[Piece]:
+        return self.squares.get(coord)
 
     def to_dict(self):
         return {
@@ -73,175 +109,183 @@ class Board:
             "en_passant_target": self.en_passant_target.to_dict() if self.en_passant_target else None
         }
 
-    def setup_board(self):
+    def reset(self):
         self.squares.clear()
+        self.move_stack.clear()
+        self._state_stack.clear()
+        self.turn = Color.WHITE
+        self.en_passant_target = None
         
         # WHITE PIECES (Bottom Loop, Center is Slice 13)
-        # Royals: Line up in Slice 13
         self.add_piece(Coordinate(Ring.D, 13), Piece(Color.WHITE, PieceType.KING))
         self.add_piece(Coordinate(Ring.C, 13), Piece(Color.WHITE, PieceType.QUEEN))
         self.add_piece(Coordinate(Ring.B, 13), Piece(Color.WHITE, PieceType.BISHOP))
         self.add_piece(Coordinate(Ring.A, 13), Piece(Color.WHITE, PieceType.BISHOP))
-
-        # Flanking Rooks and Knights
         self.add_piece(Coordinate(Ring.D, 15), Piece(Color.WHITE, PieceType.ROOK))
         self.add_piece(Coordinate(Ring.C, 15), Piece(Color.WHITE, PieceType.KNIGHT))
         self.add_piece(Coordinate(Ring.D, 11), Piece(Color.WHITE, PieceType.ROOK))
         self.add_piece(Coordinate(Ring.C, 11), Piece(Color.WHITE, PieceType.KNIGHT))
-
-        # Pawns: 8 pawns distributed symmetrically
-        # Based on the image, they form a "bracket" around the hole
-        for s in [14, 15, 16, 17, 18, 1, 2]: # This seems wrong based on the image center 13
-            pass # wait, let me look closer at the image.
-
-        # Correcting White Pawn placement based on the image:
-        # Slices relative to center 13: 14, 15, 16, 17 (Left) and 12, 11, 10, 9 (Right)
-        # Looking at the JPEG:
-        # 4 pawns on the left hole flank, 4 pawns on the right hole flank.
-        self.add_piece(Coordinate(Ring.B, 15), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 16), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 17), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 18), Piece(Color.WHITE, PieceType.PAWN, direction=1))
         
-        self.add_piece(Coordinate(Ring.B, 11), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 10), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 9), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 8), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+        # Slices from 14-17 and 9-12 for 8 pawns
+        for s in [14, 15, 16, 17]:
+            self.add_piece(Coordinate(Ring.B, s), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+        for s in [12, 11, 10, 9]:
+            self.add_piece(Coordinate(Ring.B, s), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
 
         # BLACK PIECES (Top Loop, Center is Slice 4)
-        # Royals: Line up in Slice 4
         self.add_piece(Coordinate(Ring.D, 4), Piece(Color.BLACK, PieceType.KING))
         self.add_piece(Coordinate(Ring.C, 4), Piece(Color.BLACK, PieceType.QUEEN))
         self.add_piece(Coordinate(Ring.B, 4), Piece(Color.BLACK, PieceType.BISHOP))
         self.add_piece(Coordinate(Ring.A, 4), Piece(Color.BLACK, PieceType.BISHOP))
-
-        # Flanking Rooks and Knights
         self.add_piece(Coordinate(Ring.D, 2), Piece(Color.BLACK, PieceType.ROOK))
         self.add_piece(Coordinate(Ring.C, 2), Piece(Color.BLACK, PieceType.KNIGHT))
         self.add_piece(Coordinate(Ring.D, 6), Piece(Color.BLACK, PieceType.ROOK))
         self.add_piece(Coordinate(Ring.C, 6), Piece(Color.BLACK, PieceType.KNIGHT))
-
-        # Pawns: 8 pawns distributed symmetrically around slice 4
-        # Left side: 5, 6, 7, 8
-        self.add_piece(Coordinate(Ring.B, 5), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 6), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 7), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 8), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        
-        # Right side: 3, 2, 1, 18
-        self.add_piece(Coordinate(Ring.B, 3), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 2), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 1), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 18), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-
+        for s in [5, 6, 7, 8]:
+            self.add_piece(Coordinate(Ring.B, s), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+        for s in [3, 2, 1, 18]:
+            self.add_piece(Coordinate(Ring.B, s), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
 
     def get_tile_color(self, coord: Coordinate) -> str:
         colors = ["RED", "GREEN", "YELLOW", "BLUE"]
         return colors[(coord.ring.value + coord.slice) % 4]
 
+    def setup_board(self):
+        """ Alias for reset() to maintain compatibility with existing tests/consumers """
+        self.reset()
+
     def add_piece(self, coord: Coordinate, piece: Piece):
         self.squares[coord] = piece
 
-    def remove_piece(self, coord: Coordinate):
-        if coord in self.squares:
-            del self.squares[coord]
+    def remove_piece(self, coord: Coordinate) -> Optional[Piece]:
+        return self.squares.pop(coord, None)
 
-    def get_piece(self, coord: Coordinate) -> Optional[Piece]:
-        return self.squares.get(coord)
+    def is_check(self) -> bool:
+        return self.is_check_for_color(self.turn)
 
-    def is_empty(self, coord: Coordinate) -> bool:
-        return coord not in self.squares
+    def is_in_check(self, color: Color) -> bool:
+        """ Compatibility alias for tests """
+        return self.is_check_for_color(color)
 
-    def _slide_moves(self, start: Coordinate, piece: Piece, directions: List[Tuple[int, int]]) -> Set[Move]:
-        moves = set()
-        for dr, ds in directions:
-            r = start.ring.value
-            s = start.slice
-            visited = set()
-            while True:
-                r += dr
-                s += ds
-                
-                if r < Ring.A.value or r > Ring.D.value:
-                    break
-                
-                curr = Coordinate(Ring(r), s)
-                if curr in visited:
-                    break 
-                visited.add(curr)
+    def is_checkmate(self, color: Optional[Color] = None) -> bool:
+        c = color if color is not None else self.turn
+        if not self.is_check_for_color(c):
+            return False
+        # Collect all legal moves for this color
+        original_turn = self.turn
+        self.turn = c
+        has_legal = any(self.generate_legal_moves())
+        self.turn = original_turn
+        return not has_legal
 
-                target_piece = self.get_piece(curr)
-                if target_piece:
-                    if target_piece.color != piece.color:
-                        moves.add(Move(start, curr, is_capture=True))
-                    break 
-                else:
-                    moves.add(Move(start, curr))
-        return moves
+    def is_stalemate(self, color: Optional[Color] = None) -> bool:
+        c = color if color is not None else self.turn
+        if self.is_check_for_color(c):
+            return False
+        original_turn = self.turn
+        self.turn = c
+        has_legal = any(self.generate_legal_moves())
+        self.turn = original_turn
+        return not has_legal
+
+    def generate_pseudo_legal_moves(self) -> Iterator[Move]:
+        # Collect coords first to avoid mutation issues
+        coords = [c for c, p in self.squares.items() if p.color == self.turn]
+        for coord in coords:
+            yield from self._get_pseudo_legal_moves_for_piece(coord)
 
     def get_pseudo_legal_moves(self, coord: Coordinate) -> Set[Move]:
-        piece = self.get_piece(coord)
+        """ Compatibility alias for tests """
+        return set(self._get_pseudo_legal_moves_for_piece(coord))
+
+    def generate_legal_moves(self) -> Iterator[Move]:
+        # Collect ALL pseudo legal moves first!
+        # This is critical because is_legal calls push/pop which modifies board state.
+        pseudo = list(self.generate_pseudo_legal_moves())
+        for move in pseudo:
+            if self.is_legal(move):
+                yield move
+
+    def is_legal(self, move: Move) -> bool:
+        piece = self.piece_at(move.start)
+        if not piece or piece.color != self.turn:
+            return False
+        
+        self.push(move)
+        # Check if own king is in check after the move
+        was_legal = not self.is_check_for_color(piece.color)
+        self.pop()
+        return was_legal
+
+    def is_check_for_color(self, color: Color) -> bool:
+        king_pos = self.find_king(color)
+        if not king_pos:
+            return False
+        enemy_color = Color.BLACK if color == Color.WHITE else Color.WHITE
+        return self.is_square_attacked(king_pos, enemy_color)
+
+    def push(self, move: Move):
+        piece = self.squares.get(move.start)
         if not piece:
-            return set()
+            return
 
-        moves = set()
+        # Store undo info: (move, captured_piece, captured_coord, prev_ep_target, prev_turn, prev_moves_made)
+        captured_piece = self.squares.get(move.end)
+        captured_coord = move.end
+        
+        if move.is_en_passant:
+            captured_coord = Coordinate(move.end.ring, move.end.slice - piece.direction)
+            captured_piece = self.squares.get(captured_coord)
 
-        if piece.piece_type == PieceType.ROOK:
-            moves |= self._slide_moves(coord, piece, [(0, 1), (0, -1), (1, 0), (-1, 0)])
+        undo_info = (move, captured_piece, captured_coord, self.en_passant_target, self.turn, piece.moves_made)
+        self._state_stack.append(undo_info)
 
-        elif piece.piece_type == PieceType.BISHOP:
-            moves |= self._slide_moves(coord, piece, [(1, 1), (1, -1), (-1, 1), (-1, -1)])
+        # Execute move
+        del self.squares[move.start]
+        if captured_coord in self.squares:
+            del self.squares[captured_coord]
+            
+        if move.promotion:
+            piece.piece_type = move.promotion
+            
+        piece.moves_made += 1
+        self.squares[move.end] = piece
+        
+        # En Passant target logic
+        self.en_passant_target = None
+        if piece.piece_type == PieceType.PAWN:
+            slice_diff = (move.end.slice - move.start.slice)
+            if abs(slice_diff) == 2 or abs(slice_diff) == 16:
+                direction = (slice_diff // abs(slice_diff) if abs(slice_diff) == 2 else -slice_diff // abs(slice_diff))
+                skipped_slice = ((move.start.slice + direction - 1) % 18) + 1
+                self.en_passant_target = Coordinate(move.start.ring, skipped_slice)
 
-        elif piece.piece_type == PieceType.QUEEN:
-            moves |= self._slide_moves(coord, piece, [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)])
+        self.turn = Color.BLACK if self.turn == Color.WHITE else Color.WHITE
+        self.move_stack.append(move)
 
-        elif piece.piece_type == PieceType.KNIGHT:
-            for end_coord in get_knight_moves(coord):
-                target_piece = self.get_piece(end_coord)
-                if not target_piece or target_piece.color != piece.color:
-                    moves.add(Move(coord, end_coord, is_capture=bool(target_piece)))
+    def pop(self) -> Move:
+        if not self._state_stack:
+            raise IndexError("pop from empty stack")
+        
+        move, captured_piece, captured_coord, prev_ep_target, prev_turn, prev_moves_made = self._state_stack.pop()
+        self.move_stack.pop()
 
-        elif piece.piece_type == PieceType.KING:
-            for end_coord in get_king_moves(coord):
-                target_piece = self.get_piece(end_coord)
-                if not target_piece or target_piece.color != piece.color:
-                    moves.add(Move(coord, end_coord, is_capture=bool(target_piece)))
+        # Reverse piece move
+        piece = self.squares.pop(move.end)
+        if move.promotion:
+            piece.piece_type = PieceType.PAWN
+        piece.moves_made = prev_moves_made
+        self.squares[move.start] = piece
 
-        elif piece.piece_type == PieceType.PAWN:
-            forward_coord = Coordinate(coord.ring, coord.slice + piece.direction)
-            if self.is_empty(forward_coord):
-                if piece.moves_made >= 9: # 10th move promotion
-                    moves.add(Move(coord, forward_coord, promotion=PieceType.QUEEN))
-                else:
-                    moves.add(Move(coord, forward_coord))
-                
-                # Double push
-                if piece.moves_made == 0:
-                    double_forward = Coordinate(coord.ring, coord.slice + piece.direction * 2)
-                    if self.is_empty(double_forward):
-                        moves.add(Move(coord, double_forward))
+        # Restore capture
+        if captured_piece:
+            self.squares[captured_coord] = captured_piece
 
-            # Captures
-            for dr in [-1, 1]:
-                if Ring.A.value <= coord.ring.value + dr <= Ring.D.value:
-                    cap_coord = Coordinate(Ring(coord.ring.value + dr), coord.slice + piece.direction)
-                    target = self.get_piece(cap_coord)
-                    is_promotion = piece.moves_made >= 9
-                    
-                    if target and target.color != piece.color:
-                        moves.add(Move(coord, cap_coord, is_capture=True, promotion=PieceType.QUEEN if is_promotion else None))
-                    elif cap_coord == self.en_passant_target:
-                        moves.add(Move(coord, cap_coord, is_capture=True, is_en_passant=True))
-
-        return moves
-
-    def is_square_attacked(self, coord: Coordinate, by_color: Color) -> bool:
-        for square, piece in self.squares.items():
-            if piece.color == by_color:
-                for move in self.get_pseudo_legal_moves(square):
-                    if move.end == coord:
-                        return True
-        return False
+        # Restore state
+        self.en_passant_target = prev_ep_target
+        self.turn = prev_turn
+        
+        return move
 
     def find_king(self, color: Color) -> Optional[Coordinate]:
         for square, piece in self.squares.items():
@@ -249,74 +293,72 @@ class Board:
                 return square
         return None
 
-    def is_in_check(self, color: Color) -> bool:
-        king_pos = self.find_king(color)
-        if not king_pos:
-            return False
-        enemy_color = Color.BLACK if color == Color.WHITE else Color.WHITE
-        return self.is_square_attacked(king_pos, enemy_color)
+    def is_square_attacked(self, coord: Coordinate, by_color: Color) -> bool:
+        # Save current turn to check attacks
+        original_turn = self.turn
+        self.turn = by_color
+        is_attacked = any(move.end == coord for move in self.generate_pseudo_legal_moves())
+        self.turn = original_turn
+        return is_attacked
+
+    def _get_pseudo_legal_moves_for_piece(self, coord: Coordinate) -> Iterator[Move]:
+        piece = self.squares[coord]
+        if piece.piece_type == PieceType.ROOK:
+            yield from self._slide_moves(coord, piece, [(0, 1), (0, -1), (1, 0), (-1, 0)])
+        elif piece.piece_type == PieceType.BISHOP:
+            yield from self._slide_moves(coord, piece, [(1, 1), (1, -1), (-1, 1), (-1, -1)])
+        elif piece.piece_type == PieceType.QUEEN:
+            yield from self._slide_moves(coord, piece, [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)])
+        elif piece.piece_type == PieceType.KNIGHT:
+            for end_coord in get_knight_moves(coord):
+                target = self.squares.get(end_coord)
+                if not target or target.color != piece.color:
+                    yield Move(coord, end_coord, is_capture=bool(target))
+        elif piece.piece_type == PieceType.KING:
+            for end_coord in get_king_moves(coord):
+                target = self.squares.get(end_coord)
+                if not target or target.color != piece.color:
+                    yield Move(coord, end_coord, is_capture=bool(target))
+        elif piece.piece_type == PieceType.PAWN:
+            # Forward
+            forward = Coordinate(coord.ring, coord.slice + piece.direction)
+            if forward not in self.squares:
+                yield Move(coord, forward, promotion=PieceType.QUEEN if piece.moves_made >= 9 else None)
+                if piece.moves_made == 0:
+                    double = Coordinate(coord.ring, coord.slice + piece.direction * 2)
+                    if double not in self.squares:
+                        yield Move(coord, double)
+            # Captures
+            for dr in [-1, 1]:
+                if Ring.A.value <= coord.ring.value + dr <= Ring.D.value:
+                    cap_coord = Coordinate(Ring(coord.ring.value + dr), coord.slice + piece.direction)
+                    target = self.squares.get(cap_coord)
+                    if target and target.color != piece.color:
+                        yield Move(coord, cap_coord, is_capture=True, promotion=PieceType.QUEEN if piece.moves_made >= 9 else None)
+                    elif cap_coord == self.en_passant_target:
+                        yield Move(coord, cap_coord, is_capture=True, is_en_passant=True)
+
+    def _slide_moves(self, start: Coordinate, piece: Piece, directions: List[Tuple[int, int]]) -> Iterator[Move]:
+        for dr, ds in directions:
+            r = start.ring.value
+            s = start.slice
+            visited = set()
+            while True:
+                r += dr
+                s += ds
+                if r < Ring.A.value or r > Ring.D.value:
+                    break
+                curr = Coordinate(Ring(r), s)
+                if curr in visited:
+                    break
+                visited.add(curr)
+                target = self.squares.get(curr)
+                if target:
+                    if target.color != piece.color:
+                        yield Move(start, curr, is_capture=True)
+                    break
+                yield Move(start, curr)
 
     def get_legal_moves(self, coord: Coordinate) -> Set[Move]:
-        piece = self.get_piece(coord)
-        if not piece or piece.color != self.turn:
-            return set()
-            
-        pseudo_moves = self.get_pseudo_legal_moves(coord)
-        legal_moves = set()
-        
-        for move in pseudo_moves:
-            next_board = self.make_move(move)
-            if not next_board.is_in_check(piece.color):
-                legal_moves.add(move)
-                
-        return legal_moves
-
-    def get_all_legal_moves(self, color: Color) -> Set[Move]:
-        moves = set()
-        for sq, piece in self.squares.items():
-            if piece.color == color:
-                moves |= self.get_legal_moves(sq)
-        return moves
-
-    def is_checkmate(self, color: Color) -> bool:
-        return self.is_in_check(color) and len(self.get_all_legal_moves(color)) == 0
-
-    def is_stalemate(self, color: Color) -> bool:
-        return not self.is_in_check(color) and len(self.get_all_legal_moves(color)) == 0
-
-    def make_move(self, move: Move) -> 'Board':
-        new_board = Board()
-        for sq, pc in self.squares.items():
-            new_pc = Piece(pc.color, pc.piece_type, pc.direction)
-            new_pc.moves_made = pc.moves_made
-            new_board.add_piece(sq, new_pc)
-        
-        piece = new_board.get_piece(move.start)
-        if not piece:
-            return new_board
-            
-        new_board.remove_piece(move.start)
-        
-        if move.is_en_passant:
-            cap_coord = Coordinate(move.end.ring, move.end.slice - piece.direction)
-            new_board.remove_piece(cap_coord)
-            
-        if move.promotion:
-            piece.piece_type = move.promotion
-            
-        piece.moves_made += 1
-        new_board.add_piece(move.end, piece)
-        
-        # En Passant target logic
-        new_board.en_passant_target = None
-        if piece.piece_type == PieceType.PAWN:
-            # If the move distance was 2, set the target to the square skipped
-            # In our coordinate system, slice difference handles this
-            # We need to calculate the actual slice distance correctly considering wrapping
-            slice_diff = (move.end.slice - move.start.slice)
-            if abs(slice_diff) == 2 or abs(slice_diff) == 16: # 16 is distance 2 the other way around the 18-slice loop
-                skipped_slice = ((move.start.slice + (slice_diff // abs(slice_diff) if abs(slice_diff) == 2 else -slice_diff // abs(slice_diff)) - 1) % 18) + 1
-                new_board.en_passant_target = Coordinate(move.start.ring, skipped_slice)
-
-        new_board.turn = Color.BLACK if self.turn == Color.WHITE else Color.WHITE
-        return new_board
+        """ Compatibility method for pieces """
+        return {m for m in self.generate_legal_moves() if m.start == coord}
