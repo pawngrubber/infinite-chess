@@ -36,6 +36,12 @@ The board consists of 72 tiles defined by a polar-like coordinate system:
 
 Here are visual examples of how pieces navigate the intersecting infinite loops:
 
+### True Starting Position
+The game features an intricate starting position to populate the infinite loops, ensuring pieces are distributed symmetrically in a wedge formation. The Rooks and Knights flank the Pawns on the outer rings, while the King, Queen, and Bishops line up in a single radial slice pointing toward the intersection. 
+
+*(Note: Due to the complex geometric nature of this layout, standard castling rules are currently not supported in this variant.)*
+![True Starting Position](assets/true_starting_position.jpeg)
+
 ### Pawns
 Pawns move forward along their loop but must "remember" their direction. En Passant is fully supported and follows standard logic translated to the curved grid.
 ![Pawn Movement and Trans Passant](assets/pawn_trans_passant.png)
