@@ -40,6 +40,7 @@ infinite-chess/
 ### Testing
 - **All Tests**: `uv run pytest`
 - **Logic Only**: `uv run pytest tests/board/`
+- **Logic Visuals**: [View Logic Test Visuals](tests/board/test_logic.md)
 - **Visual Tests**: [View Visual Test Cases](tests/VISUAL_TESTS.md) (Rendered board states for complex logic)
 
 ## Movement Examples & Coordinate Geometry
