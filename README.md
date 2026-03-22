@@ -44,6 +44,11 @@ infinite-chess/
 ## Movement Examples & Coordinate Geometry
 The unique lemniscate shape alters the standard movement paths and coordinate geometry. 
 
+### Manifold Topology
+The board is a parity-corrected figure-eight manifold, ensuring a perfect checkerboard pattern even through the complex intersection.
+
+![Board Topology](assets/board_topology.svg)
+
 ### Coordinates
 The board consists of 72 tiles defined by a polar-like coordinate system:
 - **Rings (A-D)**: Lettered from the innermost ring (A) to the outermost ring (D).
