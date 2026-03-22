@@ -185,6 +185,12 @@ wheels = [
 ]
 
 [[package]]
+name = "chess"
+version = "1.11.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/93/09/7d04d7581ae3bb8b598017941781bceb7959dd1b13e3ebf7b6a2cd843bc9/chess-1.11.2.tar.gz", hash = "sha256:a8b43e5678fdb3000695bdaa573117ad683761e5ca38e591c4826eba6d25bb39", size = 6131385, upload-time = "2025-02-25T19:10:27.328Z" }
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -362,6 +368,10 @@ wheels = [
 name = "infinite-chess"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "chess" },
+    { name = "svgwrite" },
+]
 
 [package.optional-dependencies]
 server = [
@@ -374,22 +384,24 @@ server = [
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
-]
-server-dev = [
     { name = "pytest-django" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "channels", marker = "extra == 'server'" },
+    { name = "chess" },
     { name = "daphne", marker = "extra == 'server'" },
     { name = "django", marker = "extra == 'server'" },
+    { name = "svgwrite" },
 ]
 provides-extras = ["server"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest" }]
-server-dev = [{ name = "pytest-django" }]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-django" },
+]
 
 [[package]]
 name = "iniconfig"
@@ -531,6 +543,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/90/76/437d71068094df0726366574cf3432a4ed754217b436eb7429415cf2d480/sqlparse-0.5.5.tar.gz", hash = "sha256:e20d4a9b0b8585fdf63b10d30066c7c94c5d7a7ec47c889a2d83a3caa93ff28e", size = 120815, upload-time = "2025-12-19T07:17:45.073Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/4b/359f28a903c13438ef59ebeee215fb25da53066db67b305c125f1c6d2a25/sqlparse-0.5.5-py3-none-any.whl", hash = "sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba", size = 46138, upload-time = "2025-12-19T07:17:46.573Z" },
+]
+
+[[package]]
+name = "svgwrite"
+version = "1.4.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/c1/263d4e93b543390d86d8eb4fc23d9ce8a8d6efd146f9427364109004fa9b/svgwrite-1.4.3.zip", hash = "sha256:a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3", size = 189516, upload-time = "2022-07-14T14:05:26.107Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/15/640e399579024a6875918839454025bb1d5f850bb70d96a11eabb644d11c/svgwrite-1.4.3-py3-none-any.whl", hash = "sha256:bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d", size = 67122, upload-time = "2022-07-14T14:05:24.459Z" },
 ]
 
 [[package]]

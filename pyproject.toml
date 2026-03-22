@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Infinite Chess with a Lemniscate board"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "chess",
+    "svgwrite",
+]
 
 [project.optional-dependencies]
 server = [
@@ -15,6 +18,7 @@ server = [
 
 [project.scripts]
 manage = "server.manage:main"
+generate-docs = "board.scripts.generate_docs:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -29,8 +33,6 @@ where = ["src"]
 [dependency-groups]
 dev = [
     "pytest",
-]
-server-dev = [
     "pytest-django",
 ]
 

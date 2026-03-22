@@ -3,6 +3,15 @@ pyproject.toml
 src/board/__init__.py
 src/board/board.py
 src/board/logic.py
+src/board/svg.py
+src/board/moves/__init__.py
+src/board/moves/bishop.py
+src/board/moves/common.py
+src/board/moves/king.py
+src/board/moves/knight.py
+src/board/moves/pawn.py
+src/board/moves/queen.py
+src/board/moves/rook.py
 src/infinite_chess.egg-info/PKG-INFO
 src/infinite_chess.egg-info/SOURCES.txt
 src/infinite_chess.egg-info/dependency_links.txt
@@ -15,4 +24,7 @@ src/server/manage.py
 src/server/core/asgi.py
 src/server/core/settings.py
 src/server/core/urls.py
+src/server/core/wsgi.py
 src/server/game/__init__.py
+src/server/game/apps.py
+src/server/game/consumers.py

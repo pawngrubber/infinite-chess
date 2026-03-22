@@ -1,29 +1,56 @@
-# System-Level Test Documentation
+# Test Board
 
-This document visualizes high-level system behaviors like En Passant capture and loop-wide threat detection.
-
-## En Passant Mechanics
-**Test**: `test_en_passant`
-
-**Scenario**:
-A Black Pawn has just jumped two squares forward, passing through the square B5. A White Pawn is standing next to it at A4.
-
-**Description**:
-'En Passant' (In Passing) allows the White Pawn to capture the Black Pawn as it passes by. The White Pawn moves diagonally to the empty square (B5) that the Black Pawn skipped over, and the Black Pawn is removed from the board. This test validates that the 'target' square is correctly identified and the capture is handled properly.
-
-**Pass Condition (Boolean Check)**:
-The test looks through all available moves for the White Pawn and confirms that a move exists with the 'is_en_passant' flag set to true, pointing to the correct destination.
-<img src='board_en_passant.svg' width='600'>
-
-## Around the World Check
+## [IC-001] Around The World Check
 **Test**: `test_around_the_world_check`
 
-**Scenario**:
-A White Rook at A3 is attacking a Black King at A1. 
-
 **Description**:
-Because the board is a continuous loop, the Rook is attacking the King from two directions at once! It has a direct path (A3 -> A2 -> A1) and a very long path wrapping around the entire loop (A3 -> A4 -> A5 ... -> A18 -> A1). This test ensures that the check is detected correctly, recognizing that distance doesn't matter if the path is clear.
+Test that a sliding piece (Rook) can attack the King from 'behind' by wrapping around the empty loop.
 
 **Pass Condition (Boolean Check)**:
-The test simply confirms that the Black King is reported as being 'In Check'.
-<img src='board_around_world.svg' width='600'>
+The Black King is reported as being 'In Check'.
+
+<img src='visuals/test_around_the_world_check.svg' width='600'>
+
+## [IC-002] Self Intersection
+**Test**: `test_self_intersection`
+
+**Description**:
+Test that a sliding piece does not count its own square as a move after a full lap.
+
+**Pass Condition (Boolean Check)**:
+No move end coordinate matches the start coordinate.
+
+<img src='visuals/test_self_intersection.svg' width='600'>
+
+## [IC-003] Pin Slide
+**Test**: `test_pin_slide`
+
+**Description**:
+Test that a Rook pinned along a ring CAN move along that same ring, but CANNOT step off it.
+
+**Pass Condition (Boolean Check)**:
+All legal moves for the Rook stay on Ring A.
+
+<img src='visuals/test_pin_slide.svg' width='600'>
+
+## [IC-004] En Passant
+**Test**: `test_en_passant`
+
+**Description**:
+Test en passant capture logic on a curved track.
+
+**Pass Condition (Boolean Check)**:
+A move exists with the 'is_en_passant' flag set to true.
+
+<img src='visuals/test_en_passant.svg' width='600'>
+
+## [IC-005] King Teleportation Check
+**Test**: `test_king_teleportation_check`
+
+**Description**:
+Test King intersection jump check legality at the crossing slices 9 and 18.
+
+**Pass Condition (Boolean Check)**:
+The King can capture an unprotected piece across the intersection.
+
+<img src='visuals/test_king_teleportation_check.svg' width='600'>

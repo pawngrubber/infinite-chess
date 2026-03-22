@@ -1,2 +1,3 @@
 [console_scripts]
+generate-docs = board.scripts.generate_docs:main
 manage = server.manage:main

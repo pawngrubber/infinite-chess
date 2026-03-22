@@ -1,3 +1,5 @@
+chess
+svgwrite
 
 [server]
 django

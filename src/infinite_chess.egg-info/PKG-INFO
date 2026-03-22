@@ -4,6 +4,8 @@ Version: 0.1.0
 Summary: Infinite Chess with a Lemniscate board
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
+Requires-Dist: chess
+Requires-Dist: svgwrite
 Provides-Extra: server
 Requires-Dist: django; extra == "server"
 Requires-Dist: channels; extra == "server"
@@ -14,36 +16,69 @@ Requires-Dist: daphne; extra == "server"
 A chess variant played on a lemniscate (figure-eight) board, where pieces can orbit the loops.
 
 ## Features
-- **Modern Tech Stack**: React (TypeScript) + Django Channels.
+- **Modern Tech Stack**: React (TypeScript) + Django Channels in a Unified Monorepo.
 - **Anonymous Matchmaking**: Real-time pairing without user accounts.
 - **Infinite Topology**: A board where straight lines can return to their origin.
 
-## Development
+## Architecture: Flat Source Monorepo
 
-### Backend
-1. Install [uv](https://github.com/astral-sh/uv).
-2. `cd apps/backend`
-3. `uv sync`
-4. `uv run python manage.py runserver`
+This project follows a "Flat Source" monorepo structure where the core logic, backend server, and frontend UI live together in a single, unified environment.
 
-### Frontend
-1. `cd apps/frontend`
-2. `npm install`
-3. `npm run dev`
+```text
+infinite-chess/
+├── pyproject.toml         # Unified Python dependencies (Logic + Server)
+├── package.json           # Unified Node dependencies (React + Vite)
+├── src/                   # Universal Source Code
+│   ├── board/             # [BACKEND] Pure Python Chess logic (The "Rules")
+│   ├── server/            # [BACKEND] Django / Channels (The "Network")
+│   └── frontend/          # [FRONTEND] React / Vite (The "UI")
+├── tests/                 # Parallel Testing Suite
+│   ├── board/             # Unit tests for the chess engine
+│   └── server/            # Integration tests for the Django server
+└── assets/                # Reference material and game assets
+```
 
-## Architecture
-- Matchmaking is handled in-memory by Django Channels.
-- Game state is synchronized via WebSockets.
-- Board is rendered as a responsive SVG path for non-Euclidean movement.
+## Getting Started
+
+### Prerequisites
+- [uv](https://github.com/astral-sh/uv) for Python management.
+- [Node.js](https://nodejs.org/) (npm) for frontend management.
+
+### Installation & Run
+1. **Sync Environment**: `uv sync`
+2. **Install Frontend**: `npm install`
+3. **Run Backend**: `uv run manage runserver`
+4. **Run Frontend**: `npm run dev`
+
+### Interactive Visual Documentation
+Each test category is paired with a visual markdown file for easier validation of complex manifold logic:
+- **Core Logic**: [test_logic.md](tests/board/test_logic.md) (Wrapping, Intersections)
+- **Comprehensive Moves**: [test_comprehensive.md](tests/board/test_comprehensive.md) (Pins, Captures)
+- **Board Setup**: [test_board.md](tests/board/test_board.md) (Piece distribution)
+- **TDD/Experimental**: [test_setup_tdd.md](tests/board/test_setup_tdd.md) | [test_tdd_failures.md](tests/board/test_tdd_failures.md)
+
+### Running Tests
+- **All Tests**: `uv run pytest`
+- **Logic Only**: `uv run pytest tests/board/`
 
 ## Movement Examples & Coordinate Geometry
 The unique lemniscate shape alters the standard movement paths and coordinate geometry. 
 
-### Coordinates
-The board consists of 72 tiles defined by a polar-like coordinate system:
-- **Rings (A-D)**: Lettered from the innermost ring (A) to the outermost ring (D).
-- **Slices (1-18)**: Numbered sequentially around the infinity loop, starting near the center intersection. Slices 1-7 wrap around the right hole, 8-11 traverse the intersection, and 12-18 wrap around the left hole.
-![Board Coordinates](assets/coordinates.png)
+### Manifold: Flawless Figure-Eight
+The board is a parity-corrected figure-eight manifold, ensuring a perfect checkerboard pattern even through the complex intersection.
+
+<img src="assets/board_topology.svg" width="1000" alt="Board Topology">
+
+### True Starting Position
+Pieces are symmetrically mirrored across the two loops in a wedge formation.
+
+<img src="assets/starting_position_topology.svg" width="1000" alt="Starting Position Topology">
+
+### Semantic Coordinate Mapping
+The board is indexed as a 1D continuous loop from Rank 1 to 18, ensuring a singular, unbroken path for each of the 4 continuous tracks (A-D).
+- **Tracks (A-D)**: Continuous lanes that orbit the loops and traverse the intersection.
+- **Ranks (1-18)**: Sequential positions along the figure-eight manifold.
+<img src="assets/semantic_coordinates.svg" width="1000" alt="Semantic Coordinate Mapping">
 
 Here are visual examples of how pieces navigate the intersecting infinite loops:
 
@@ -51,7 +86,19 @@ Here are visual examples of how pieces navigate the intersecting infinite loops:
 The game features an intricate starting position to populate the infinite loops, ensuring pieces are distributed symmetrically in a wedge formation. The Rooks and Knights flank the Pawns on the outer rings, while the King, Queen, and Bishops line up in a single radial slice pointing toward the intersection. 
 
 *(Note: Due to the complex geometric nature of this layout, standard castling rules are currently not supported in this variant.)*
-![True Starting Position](assets/true_starting_position.jpeg)
+<img src="assets/starting_position_topology.svg" width="1000" alt="True Starting Position SVG">
+
+**Original Source of Inspiration (Physical Reference)**:
+<img src="assets/true_starting_position.jpeg" width="600" alt="Original Physical Board Reference">
+
+## Game Rules
+- **The Board**: A 72-tile lemniscate board with 4 rings (A-D) and 18 slices.
+- **True Starting Position**: Pieces are symmetrically mirrored across the two loops (White on Slice 13, Black on Slice 4).
+- **Topology**: Slice 9 and Slice 18 physically cross, allowing specialized movement through the center.
+- **Pawns**: 10-step promotion to Queen.
+- **Bishops**: Confined to their color complex paths.
+- **Mandatory En Passant**: If possible, it must be taken.
+- **No Castling**: Not supported in this wedge geometry.
 
 ### Pawns
 Pawns move forward along their loop but must "remember" their direction. En Passant is fully supported and follows standard logic translated to the curved grid.
@@ -87,4 +134,3 @@ Queens combine Rook and Bishop movements, capable of traversing both loops and d
 ### Kings
 Kings can move one tile in any direction, effectively transitioning paths seamlessly at intersections.
 ![King Movement](assets/king_movement.png)
-
