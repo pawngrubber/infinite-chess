@@ -1,45 +1,56 @@
 # Test Pawns
 
-## [IC-PAWN-001] White Forward Path Logic
+## [IC-PAWN-001] White Forward Path (Avoids Own Base)
 **Test**: `test_white_forward_path`
 
 **Description**:
-White 'Forward' pawns start at Slice 17 and move UP (+1) towards Slice 4. They should never hit Slices 13-16 or 12.
+White 'Forward' pawns start at Slice 17 and move UP (+1) towards Slice 4. They must skip Slices 12-16 to avoid their own base and back rank.
 
 **Pass Condition (Boolean Check)**:
 White Forward pawn path is 17->18->1->2->3->4(Promote).
 
 <img src='assets/test_pawns/test_white_forward_path.svg' width='600'>
 
-## [IC-PAWN-002] Black Backward Path Logic (Mirror)
-**Test**: `test_black_backward_path`
+## [IC-PAWN-002] White Base Pawn Path
+**Test**: `test_white_base_pawn_path`
 
 **Description**:
-Black 'Backward' pawns start at Slice 3 and move DOWN (-1) towards Slice 13. They mirror the White Forward path but continue past the White base.
+White pawns starting at the base (Slice 13) must move DOWN (-1) towards Slice 4 to avoid forbidden slices 14-16.
 
 **Pass Condition (Boolean Check)**:
-Black Backward pawn path is 3->2->1->18->17->16->15->14->13(Promote).
+White Base pawn path is 13->12->11->10->9->8->7->6->5->4(Promote).
 
-<img src='assets/test_pawns/test_black_backward_path.svg' width='600'>
+<img src='assets/test_pawns/test_white_base_pawn_path.svg' width='600'>
 
-## [IC-PAWN-003] White Pawn Forbidden Zone
-**Test**: `test_white_pawn_forbidden_zone`
+## [IC-PAWN-003] Black Mirror Forward Path
+**Test**: `test_black_forward_path`
 
 **Description**:
-White pawns are strictly forbidden from entering Slices 14, 15, and 16, as these are behind their movement vector.
+Black 'Forward' pawns start at Slice 18 (mirror of White 17) and move DOWN (-1) towards Slice 15. They must skip Slices 4-1 to avoid their own base.
 
 **Pass Condition (Boolean Check)**:
-No White pawn can generate a move that lands on Slice 14, 15, or 16.
+Black Forward pawn path is 18->17->16->15(Promote).
 
-<img src='assets/test_pawns/test_white_pawn_forbidden_zone.svg' width='600'>
+<img src='assets/test_pawns/test_black_forward_path.svg' width='600'>
 
-## [IC-PAWN-004] Black Pawn Forbidden Zone (Mirror)
-**Test**: `test_black_pawn_forbidden_zone`
+## [IC-PAWN-004] Black Base Pawn Path
+**Test**: `test_black_base_pawn_path`
 
 **Description**:
-Black pawns are strictly forbidden from entering Slices 1, 2, and 3.
+Black pawns starting at their base (Slice 4) must move UP (+1) towards Slice 15.
 
 **Pass Condition (Boolean Check)**:
-No Black pawn can generate a move that lands on Slice 1, 2, or 3.
+Black Base pawn path is 4->5->6->7->8->9->10->11->12->13->14->15(Promote).
 
-<img src='assets/test_pawns/test_black_pawn_forbidden_zone.svg' width='600'>
+<img src='assets/test_pawns/test_black_base_pawn_path.svg' width='600'>
+
+## [IC-PAWN-005] Head-On Pawn Collision
+**Test**: `test_pawn_head_on_collision`
+
+**Description**:
+Two pawns from different loops meeting head-on at the intersection must block each other.
+
+**Pass Condition (Boolean Check)**:
+Neither pawn can move forward into the occupied square.
+
+<img src='assets/test_pawns/test_pawn_head_on_collision.svg' width='600'>
