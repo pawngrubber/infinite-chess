@@ -37,11 +37,16 @@ infinite-chess/
 3. **Run Backend**: `uv run manage runserver`
 4. **Run Frontend**: `npm run dev`
 
-### Testing
+### Interactive Visual Documentation
+Each test category is paired with a visual markdown file for easier validation of complex manifold logic:
+- **Core Logic**: [test_logic.md](tests/board/test_logic.md) (Wrapping, Intersections)
+- **Comprehensive Moves**: [test_comprehensive.md](tests/board/test_comprehensive.md) (Pins, Captures)
+- **Board Setup**: [test_board.md](tests/board/test_board.md) (Piece distribution)
+- **TDD/Experimental**: [test_setup_tdd.md](tests/board/test_setup_tdd.md) | [test_tdd_failures.md](tests/board/test_tdd_failures.md)
+
+### Running Tests
 - **All Tests**: `uv run pytest`
 - **Logic Only**: `uv run pytest tests/board/`
-- **Logic Visuals**: [View Logic Test Visuals](tests/board/test_logic.md)
-- **Visual Tests**: [View Visual Test Cases](tests/VISUAL_TESTS.md) (Rendered board states for complex logic)
 
 ## Movement Examples & Coordinate Geometry
 The unique lemniscate shape alters the standard movement paths and coordinate geometry. 
