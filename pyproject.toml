@@ -11,8 +11,12 @@ dependencies = [
 [project.scripts]
 manage = "server.manage:main"
 
-[tool.setuptools.package-dir]
-"" = "src"
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -21,6 +25,14 @@ where = ["src"]
 dev = [
     "pytest",
     "pytest-django"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --tb=short"
+markers = [
+    "board: tests for the core chess logic",
+    "server: tests for the django implementation"
 ]
 
 [tool.ruff]
