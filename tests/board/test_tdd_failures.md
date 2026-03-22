@@ -1,6 +1,6 @@
 # Test Tdd Failures
 
-## [20] Bishop Color Constraint
+## [21] Bishop Color Constraint
 **Test**: `test_bishop_color_constraint`
 
 **Description**:
@@ -11,7 +11,7 @@ All moves for a Bishop land on its allowed color complex.
 
 <img src='assets/test_tdd_failures/test_bishop_color_constraint.svg' width='600'>
 
-## [21] Checkmate Recognition
+## [22] Checkmate Recognition
 **Test**: `test_is_checkmate`
 
 **Description**:
@@ -22,7 +22,7 @@ is_checkmate returns True when no legal escape exists.
 
 <img src='assets/test_tdd_failures/test_is_checkmate.svg' width='600'>
 
-## [22] Knight Wormhole Jump
+## [23] Knight Wormhole Jump
 **Test**: `test_knight_true_lemniscate_jump`
 
 **Description**:
@@ -33,7 +33,7 @@ Knight at A9 has a legal jump to C18 across the intersection.
 
 <img src='assets/test_tdd_failures/test_knight_true_lemniscate_jump.svg' width='600'>
 
-## [23] Pawn Promotion (10 Steps)
+## [24] Pawn Promotion (10 Steps)
 **Test**: `test_pawn_10_space_promotion`
 
 **Description**:

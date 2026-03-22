@@ -1,6 +1,6 @@
 # Test Pawns
 
-## [15] Black Base Pawn Path
+## [16] Black Base Pawn Path
 **Test**: `test_black_base_pawn_path`
 
 **Description**:
@@ -11,7 +11,7 @@ Black Base pawn path is 4->5->6->7->8->9->10->11->12->13->14->15(Promote).
 
 <img src='assets/test_pawns/test_black_base_pawn_path.svg' width='600'>
 
-## [16] Black Mirror Forward Path
+## [17] Black Mirror Forward Path
 **Test**: `test_black_forward_path`
 
 **Description**:
@@ -22,7 +22,7 @@ Black Forward pawn path is 18->17->16->15(Promote).
 
 <img src='assets/test_pawns/test_black_forward_path.svg' width='600'>
 
-## [17] Head-On Pawn Collision
+## [18] Head-On Pawn Collision
 **Test**: `test_pawn_head_on_collision`
 
 **Description**:
@@ -33,7 +33,7 @@ Neither pawn can move forward into the occupied square.
 
 <img src='assets/test_pawns/test_pawn_head_on_collision.svg' width='600'>
 
-## [18] White Base Pawn Path
+## [19] White Base Pawn Path
 **Test**: `test_white_base_pawn_path`
 
 **Description**:
@@ -44,7 +44,7 @@ White Base pawn path is 13->12->11->10->9->8->7->6->5->4(Promote).
 
 <img src='assets/test_pawns/test_white_base_pawn_path.svg' width='600'>
 
-## [19] White Forward Path (Avoids Own Base)
+## [20] White Forward Path (Avoids Own Base)
 **Test**: `test_white_forward_path`
 
 **Description**:

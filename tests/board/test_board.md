@@ -1,6 +1,6 @@
 # Test Board
 
-## [1] Around The World Check
+## [2] Around The World Check
 **Test**: `test_around_the_world_check`
 
 **Description**:
@@ -11,7 +11,7 @@ The Black King is reported as being 'In Check'.
 
 <img src='assets/test_board/test_around_the_world_check.svg' width='600'>
 
-## [2] En Passant
+## [3] En Passant
 **Test**: `test_en_passant`
 
 **Description**:
@@ -22,7 +22,7 @@ A move exists with the 'is_en_passant' flag set to true.
 
 <img src='assets/test_board/test_en_passant.svg' width='600'>
 
-## [3] King Teleportation Check
+## [4] King Teleportation Check
 **Test**: `test_king_teleportation_check`
 
 **Description**:
@@ -33,7 +33,7 @@ The King can capture an unprotected piece across the intersection.
 
 <img src='assets/test_board/test_king_teleportation_check.svg' width='600'>
 
-## [4] Pin Slide
+## [5] Pin Slide
 **Test**: `test_pin_slide`
 
 **Description**:
@@ -44,7 +44,7 @@ All legal moves for the Rook stay on Ring A.
 
 <img src='assets/test_board/test_pin_slide.svg' width='600'>
 
-## [5] Self Intersection
+## [6] Self Intersection
 **Test**: `test_self_intersection`
 
 **Description**:

@@ -1,6 +1,6 @@
 # Test Logic
 
-## [10] Bishop Diagonal Geometry
+## [11] Bishop Diagonal Geometry
 **Test**: `test_bishop_moves`
 
 **Description**:
@@ -11,7 +11,7 @@ Bishop moves diagonally to adjacent rings and slices.
 
 <img src='assets/test_logic/test_bishop_moves.svg' width='600'>
 
-## [11] King Intersect Jump
+## [12] King Intersect Jump
 **Test**: `test_king_moves`
 
 **Description**:
@@ -22,7 +22,7 @@ King can jump directly from Slice 9 to Slice 18.
 
 <img src='assets/test_logic/test_king_moves.svg' width='600'>
 
-## [12] Knight L-Shape Jumps
+## [13] Knight L-Shape Jumps
 **Test**: `test_knight_moves`
 
 **Description**:
@@ -33,7 +33,7 @@ Knight performs valid L-shaped jumps, including wrapping.
 
 <img src='assets/test_logic/test_knight_moves.svg' width='600'>
 
-## [13] Pawn Forward Step
+## [14] Pawn Forward Step
 **Test**: `test_pawn_moves`
 
 **Description**:
@@ -44,7 +44,7 @@ Pawn moves one step forward and wraps correctly.
 
 <img src='assets/test_logic/test_pawn_moves.svg' width='600'>
 
-## [14] Rook Movement Geometry
+## [15] Rook Movement Geometry
 **Test**: `test_rook_moves`
 
 **Description**:

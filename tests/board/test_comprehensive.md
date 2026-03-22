@@ -1,6 +1,6 @@
 # Test Comprehensive
 
-## [6] Absolute Pin Diagonal
+## [7] Absolute Pin Diagonal
 **Test**: `test_absolute_pin_diagonal`
 
 **Description**:
@@ -11,7 +11,7 @@ Legal moves for the pinned Bishop are restricted to the diagonal.
 
 <img src='assets/test_comprehensive/test_absolute_pin_diagonal.svg' width='600'>
 
-## [7] Around The World Advanced
+## [8] Around The World Advanced
 **Test**: `test_around_the_world_check_advanced`
 
 **Description**:
@@ -22,7 +22,7 @@ King remains in check if only one direction of the loop is blocked.
 
 <img src='assets/test_comprehensive/test_around_the_world_check_advanced.svg' width='600'>
 
-## [8] Double Check Evasion
+## [9] Double Check Evasion
 **Test**: `test_double_check_forces_king_move`
 
 **Description**:
@@ -33,7 +33,7 @@ Non-King pieces have zero legal moves during a double check.
 
 <img src='assets/test_comprehensive/test_double_check_forces_king_move.svg' width='600'>
 
-## [9] Pinned Piece Power
+## [10] Pinned Piece Power
 **Test**: `test_pinned_piece_projects_check`
 
 **Description**:
