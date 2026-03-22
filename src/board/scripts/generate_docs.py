@@ -30,15 +30,6 @@ def main():
         shutil.rmtree(assets_root)
     os.makedirs(assets_root, exist_ok=True)
     
-    # Ensure the root assets folder is ignored by git
-    gitignore_path = ".gitignore"
-    ignore_entry = f"{test_dir}/{assets_root_name}/\n"
-    with open(gitignore_path, "a+") as gf:
-        gf.seek(0)
-        content = gf.read()
-        if ignore_entry not in content:
-            gf.write(ignore_entry)
-
     test_files = [f for f in os.listdir(test_dir) if f.startswith("test_") and f.endswith(".py")]
     test_files.sort()
 
