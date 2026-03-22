@@ -25,3 +25,4 @@ dist-ssr/
 Thumbs.db
 tests/board/visuals/
 tests/board/test_board_assets/
+tests/board/assets/

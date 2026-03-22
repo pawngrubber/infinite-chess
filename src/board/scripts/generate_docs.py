@@ -8,9 +8,12 @@ from board.testing import get_captured_board, Scenario
 
 def main():
     test_dir = "tests/board"
+    # Single folder for all SVG clutter in this test group
+    assets_dir_name = "assets"
+    assets_dir = os.path.join(test_dir, assets_dir_name)
     
-    # 1. Cleanup old documentation in the root to avoid clutter
-    print(f"Cleaning up old documentation and root SVGs in {test_dir}...")
+    # 1. Cleanup old documentation and asset folders
+    print(f"Cleaning up old documentation and assets in {test_dir}...")
     for f in os.listdir(test_dir):
         file_path = os.path.join(test_dir, f)
         # Remove old SVGs in root
@@ -19,9 +22,26 @@ def main():
         # Remove old MDs (except README)
         elif f.endswith(".md") and f != "README.md":
             os.remove(file_path)
+        # Remove old per-module asset folders (cleanup from previous attempt)
+        elif f.endswith("_assets") and os.path.isdir(file_path):
+            shutil.rmtree(file_path)
         # Remove old generic 'visuals' directory if it exists
         elif f == "visuals" and os.path.isdir(file_path):
             shutil.rmtree(file_path)
+
+    # Ensure the consolidated assets dir exists and is empty for this run
+    if os.path.exists(assets_dir):
+        shutil.rmtree(assets_dir)
+    os.makedirs(assets_dir, exist_ok=True)
+    
+    # Ensure it's ignored by git
+    gitignore_path = ".gitignore"
+    ignore_entry = f"{test_dir}/{assets_dir_name}/\n"
+    with open(gitignore_path, "a+") as gf:
+        gf.seek(0)
+        content = gf.read()
+        if ignore_entry not in content:
+            gf.write(ignore_entry)
 
     test_files = [f for f in os.listdir(test_dir) if f.startswith("test_") and f.endswith(".py")]
     test_files.sort()
@@ -30,10 +50,6 @@ def main():
         module_name = test_file[:-3]
         module_path = os.path.join(test_dir, test_file)
         md_file = os.path.join(test_dir, f"{module_name}.md")
-        
-        # Folder for this module's SVG clutter
-        assets_dir_name = f"{module_name}_assets"
-        assets_dir = os.path.join(test_dir, assets_dir_name)
         
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
@@ -48,19 +64,6 @@ def main():
         if not functions:
             print(f"Skipping {test_file} (no @scenario decorators found)")
             continue
-
-        # Ensure assets dir exists and is empty for this run
-        if os.path.exists(assets_dir):
-            shutil.rmtree(assets_dir)
-        os.makedirs(assets_dir, exist_ok=True)
-        
-        # Ensure it's ignored by git
-        gitignore_path = ".gitignore"
-        ignore_entry = f"{assets_dir}/\n"
-        with open(gitignore_path, "a+") as gf:
-            gf.seek(0)
-            if ignore_entry not in gf.read():
-                gf.write(ignore_entry)
 
         md_content = [f"# {module_name.replace('_', ' ').title()}\n"]
         
@@ -78,7 +81,8 @@ def main():
             
             board = get_captured_board() or Board()
             
-            svg_filename = f"{func.__name__}.svg"
+            # Use module name in SVG filename to avoid collisions in the shared assets folder
+            svg_filename = f"{module_name}_{func.__name__}.svg"
             svg_path = os.path.join(assets_dir, svg_filename)
             
             with open(svg_path, "w") as f:
@@ -92,7 +96,7 @@ def main():
             
         with open(md_file, "w") as f:
             f.write("\n".join(md_content))
-        print(f"Generated {md_file} ({len(functions)} scenarios in {assets_dir_name}/)")
+        print(f"Generated {md_file} ({len(functions)} scenarios)")
 
 if __name__ == "__main__":
     main()
