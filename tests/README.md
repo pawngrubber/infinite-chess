@@ -1,6 +1,6 @@
 # Test Visualizations
 
-This directory contains visual representations of board states and legal move generation to verify the engine's behavior.
+This directory contains high-quality visual representations of board states and legal move generation to verify the engine's behavior, specifically mapped to the true Lemniscate figure-eight topology.
 
 ## Standard Starting Position
 
