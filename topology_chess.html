@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Topology Chess - Perfect Parity</title>
+    <style>
+        body { 
+            background-color: #000000; 
+            color: white; 
+            font-family: sans-serif;
+            overflow: hidden; 
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Smooth hover transitions and grid styling */
+        .tile {
+            transition: filter 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            stroke: #000; /* Subtle black grid lines mapping perfectly to the photo */
+            stroke-width: 1.5;
+            shape-rendering: geometricPrecision; 
+        }
+        
+        .tile:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Unified shadow for the entire manifold structure */
+        #board-group {
+            filter: drop-shadow(0 15px 45px rgba(255, 255, 255, 0.08));
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+    
+    <div class="absolute top-8 text-center pointer-events-none z-10">
+        <h1 class="text-3xl font-bold text-gray-200 tracking-wider">TOPOLOGY CHESS</h1>
+        <p class="text-gray-400 mt-2 font-mono">Manifold: Parity Corrected Figure-Eight</p>
+    </div>
+
+    <!-- The main board container -->
+    <div class="w-full h-full flex justify-center items-center absolute inset-0">
+        <!-- Expanded viewbox to comfortably fit the massive width of both lobes -->
+        <svg id="chess-svg" viewBox="0 0 2400 2400" class="w-full h-full max-h-screen p-8">
+            
+            <!-- 
+              We translate to center of viewbox (1200, 1200),
+              rotate 45 degrees to establish the diamond center, 
+              and offset by half the core size (-200, -200)
+            -->
+            <g id="board-group" transform="translate(1200, 1200) rotate(45) translate(-200, -200)">
+                <g id="tiles-layer"></g>
+            </g>
+        </svg>
+    </div>
+
+    <script>
+        const tilesLayer = document.getElementById('tiles-layer');
+        const tileSize = 100; 
+
+        // Colors mathematically extracted to match your reference photo perfectly
+        const lightColor = '#ebd7b5'; // Tan wood
+        const darkColor = '#ad7f5d';  // Brown wood
+
+        function renderBoard() {
+            tilesLayer.innerHTML = ''; 
+
+            // 1. Render the Core 4x4 Grid (The Crossing)
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    drawRectTile(col, row, "core");
+                }
+            }
+
+            // 2. Render the Right Lobe Extensions (1 square long)
+            for (let col = 0; col < 4; col++) {
+                drawRectTile(col, -1, "tr-extension"); 
+            }
+            for (let row = 0; row < 4; row++) {
+                drawRectTile(4, row, "br-extension");  
+            }
+
+            // 3. Render the Left Lobe Extensions (1 square long)
+            for (let row = 0; row < 4; row++) {
+                drawRectTile(-1, row, "tl-extension"); 
+            }
+            for (let col = 0; col < 4; col++) {
+                drawRectTile(col, 4, "bl-extension");  
+            }
+
+            // 4. Render the Curved Manifolds
+            renderRightLobe();
+            renderLeftLobe();
+        }
+
+        function drawRectTile(col, row, typeClass) {
+            // Parity math for checkerboard: Math.abs guarantees no negative remainder bugs
+            const isLight = Math.abs(row + col) % 2 === 0;
+            
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", col * tileSize);
+            rect.setAttribute("y", row * tileSize);
+            rect.setAttribute("width", tileSize);
+            rect.setAttribute("height", tileSize);
+            rect.setAttribute("fill", isLight ? lightColor : darkColor);
+            rect.setAttribute("class", "tile");
+            rect.setAttribute("data-type", typeClass);
+            rect.setAttribute("data-row", row);
+            rect.setAttribute("data-col", col);
+
+            tilesLayer.appendChild(rect);
+        }
+
+        function renderRightLobe() {
+            const cx = 500;
+            const cy = -100;
+            const numRings = 4;
+            const segments = 5;
+            
+            const startAngle = Math.PI; 
+            const endAngle = Math.PI * 2.5; 
+
+            for (let ring = 0; ring < numRings; ring++) {
+                const r1 = (ring + 1) * tileSize; 
+                const r2 = (ring + 2) * tileSize; 
+
+                for (let s = 0; s < segments; s++) {
+                    const theta1 = startAngle + (s / segments) * (endAngle - startAngle);
+                    const theta2 = startAngle + ((s + 1) / segments) * (endAngle - startAngle);
+
+                    // Offset syncs the parity with the straight right extensions
+                    const isLight = (ring + s + 1) % 2 === 0;
+                    
+                    drawArcTile(cx, cy, r1, r2, theta1, theta2, isLight, "right-lobe-curve", ring, s);
+                }
+            }
+        }
+
+        function renderLeftLobe() {
+            const cx = -100;
+            const cy = 500;
+            const numRings = 4;
+            const segments = 5;
+            
+            const startAngle = 0; 
+            const endAngle = Math.PI * 1.5; 
+
+            for (let ring = 0; ring < numRings; ring++) {
+                const r1 = (ring + 1) * tileSize; 
+                const r2 = (ring + 2) * tileSize; 
+
+                for (let s = 0; s < segments; s++) {
+                    const theta1 = startAngle + (s / segments) * (endAngle - startAngle);
+                    const theta2 = startAngle + ((s + 1) / segments) * (endAngle - startAngle);
+
+                    // FIX: Added + 1 to invert the parity so it perfectly bridges the Top-Left and Bottom-Left extensions without colliding colors!
+                    const isLight = (ring + s + 1) % 2 === 0;
+
+                    drawArcTile(cx, cy, r1, r2, theta1, theta2, isLight, "left-lobe-curve", ring, s);
+                }
+            }
+        }
+
+        function drawArcTile(cx, cy, r1, r2, theta1, theta2, isLight, typeClass, ring, segment) {
+            const p1 = polarToCartesian(cx, cy, r1, theta1);
+            const p2 = polarToCartesian(cx, cy, r2, theta1);
+            const p3 = polarToCartesian(cx, cy, r2, theta2);
+            const p4 = polarToCartesian(cx, cy, r1, theta2);
+
+            const pathData = `
+                M ${p1.x} ${p1.y} 
+                L ${p2.x} ${p2.y} 
+                A ${r2} ${r2} 0 0 1 ${p3.x} ${p3.y} 
+                L ${p4.x} ${p4.y} 
+                A ${r1} ${r1} 0 0 0 ${p1.x} ${p1.y} 
+                Z
+            `;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", pathData.trim());
+            path.setAttribute("fill", isLight ? lightColor : darkColor);
+            path.setAttribute("class", "tile");
+            path.setAttribute("data-type", typeClass);
+            path.setAttribute("data-ring", ring);
+            path.setAttribute("data-segment", segment);
+
+            tilesLayer.appendChild(path);
+        }
+
+        function polarToCartesian(cx, cy, r, angle) {
+            return {
+                x: cx + r * Math.cos(angle),
+                y: cy + r * Math.sin(angle)
+            };
+        }
+
+        window.onload = renderBoard;
+
+    </script>
+</body>
+</html>
