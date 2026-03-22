@@ -2,11 +2,10 @@
 
 ## Knight Moves wrapping around the loop
 **Test**: `test_knight_moves`
+A White Knight at **B2** jumping to wrap-around targets.
+<img src="test_logic_knight.svg" width="600">
 
-**Description**:
-A White Knight at **B2** can jump to various squares, including those that wrap around the figure-eight loop.
-- **B2 -> C4, A4** (Standard L-shape)
-- **B2 -> D3** (Standard L-shape)
-- **B2 -> C18, A18** (Wrapping around Rank 1/18 boundary)
-
-<img src="visuals/knight_moves.svg" width="800" alt="Knight Moves Visual">
+## King Intersection Jump
+**Test**: `test_king_intersection_jump`
+A King at **C18** jumping across the figure-eight intersection to **C9**.
+<img src="test_logic_king_jump.svg" width="600">
