@@ -46,16 +46,9 @@ def test_en_passant_valid_direction():
     b = Board()
     b.turn = Color.WHITE
     
-    # White pawn at A9, moving -1 (towards 8)
-    # Wait, if it's at A9 and moves -1, it goes to A8.
     b.add_piece(Coordinate(Ring.A, 9), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-    
-    # Black pawn at B7, moving +1 (towards 8, 9)
-    # It double pushes 7 -> 8 -> 9. Skipped 8.
     b.add_piece(Coordinate(Ring.B, 9), Piece(Color.BLACK, PieceType.PAWN, direction=1))
     b.en_passant_target = Coordinate(Ring.B, 8)
-    
-    # Add a King to satisfy legality checks if any
     b.add_piece(Coordinate(Ring.D, 13), Piece(Color.WHITE, PieceType.KING))
     
     capture_board(b)
@@ -65,6 +58,38 @@ def test_en_passant_valid_direction():
 
 @scenario(
     id="IC-PAWN-003",
+    name="White Pawn Promotion (4th Rank)",
+    description="White pawns promote when they reach the 4th rank (Slice 4), which is the heart of the Black territory.",
+    pass_condition="A White pawn move to Slice 4 includes a promotion to Queen."
+)
+def test_white_pawn_promotion():
+    b = Board()
+    b.turn = Color.WHITE
+    # White pawn at A5 moving -1 towards 4
+    b.add_piece(Coordinate(Ring.A, 5), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+    capture_board(b)
+    
+    moves = b.get_legal_moves(Coordinate(Ring.A, 5))
+    assert any(m.end.slice == 4 and m.promotion == PieceType.QUEEN for m in moves)
+
+@scenario(
+    id="IC-PAWN-004",
+    name="Black Pawn Promotion (15th Rank)",
+    description="Black pawns promote when they reach the 15th rank (Slice 15), effectively breaching the White back rank.",
+    pass_condition="A Black pawn move to Slice 15 includes a promotion to Queen."
+)
+def test_black_pawn_promotion():
+    b = Board()
+    b.turn = Color.BLACK
+    # Black pawn at A14 moving +1 towards 15
+    b.add_piece(Coordinate(Ring.A, 14), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+    capture_board(b)
+    
+    moves = b.get_legal_moves(Coordinate(Ring.A, 14))
+    assert any(m.end.slice == 15 and m.promotion == PieceType.QUEEN for m in moves)
+
+@scenario(
+    id="IC-PAWN-005",
     name="Head-On Pawn Collision",
     description="Two pawns from different loops meeting head-on at the intersection must block each other.",
     pass_condition="Neither pawn can move forward into the occupied square."

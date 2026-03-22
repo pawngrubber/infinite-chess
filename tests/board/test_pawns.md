@@ -22,7 +22,29 @@ En Passant is possible when both pawns are moving towards their meeting point.
 
 <img src='assets/test_pawns/test_en_passant_valid_direction.svg' width='600'>
 
-## [IC-PAWN-003] Head-On Pawn Collision
+## [IC-PAWN-003] White Pawn Promotion (4th Rank)
+**Test**: `test_white_pawn_promotion`
+
+**Description**:
+White pawns promote when they reach the 4th rank (Slice 4), which is the heart of the Black territory.
+
+**Pass Condition (Boolean Check)**:
+A White pawn move to Slice 4 includes a promotion to Queen.
+
+<img src='assets/test_pawns/test_white_pawn_promotion.svg' width='600'>
+
+## [IC-PAWN-004] Black Pawn Promotion (15th Rank)
+**Test**: `test_black_pawn_promotion`
+
+**Description**:
+Black pawns promote when they reach the 15th rank (Slice 15), effectively breaching the White back rank.
+
+**Pass Condition (Boolean Check)**:
+A Black pawn move to Slice 15 includes a promotion to Queen.
+
+<img src='assets/test_pawns/test_black_pawn_promotion.svg' width='600'>
+
+## [IC-PAWN-005] Head-On Pawn Collision
 **Test**: `test_pawn_head_on_collision`
 
 **Description**:
