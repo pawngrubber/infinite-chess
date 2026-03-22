@@ -12,12 +12,18 @@ The game uses a polar-lemniscate notation system to map the board's complex geom
 - A tile is uniquely identified by combining its ring and slice (e.g., **A1**).
 - **The Intersection**: Slice 9 and Slice 18 are physically adjacent at the crossing point, allowing specialized movement between the two loops.
 
-### Color Connections
-Tile color is determined by the formula: `(ring_index + slice_index) % 4`.
-- **Complexes**: This creates four distinct color complexes. 
-- **Restrictions**: Pieces like Bishops are strictly confined to their specific color complex (e.g., a Bishop starting on a Red tile can only ever move to Yellow, Blue, or Green tiles within its allowed complex path).
+## 2. True Starting Position
+The game features a specific symmetric lineup around the two holes:
+- **White (Bottom Loop)**: Centered on **Slice 13**.
+    - Royals (King, Queen, Bishops) line up on Ring D to Ring A along Slice 13.
+    - Rooks and Knights flank on Slices 11 and 15 (Ring D and C).
+    - Pawns form a bracket on Ring B across Slices 8-12 and 14-18.
+- **Black (Top Loop)**: Centered on **Slice 4**.
+    - Royals line up on Ring D to Ring A along Slice 4.
+    - Rooks and Knights flank on Slices 2 and 6.
+    - Pawns form a bracket on Ring B across Slices 18-3 and 5-8.
 
-## 2. Piece Movement
+## 3. Piece Movement
 Movement rules are based on standard chess but adapted to the non-Euclidean geometry:
 
 ### Rooks (Straight)

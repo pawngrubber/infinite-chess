@@ -76,55 +76,64 @@ class Board:
     def setup_board(self):
         self.squares.clear()
         
-        # WHITE PIECES (Center is Slice 13)
-        # Left Flank (Slices 14, 15, 16) - Note: moving +1 takes them to 18 then 1
-        self.add_piece(Coordinate(Ring.D, 16), Piece(Color.WHITE, PieceType.ROOK))
-        self.add_piece(Coordinate(Ring.C, 16), Piece(Color.WHITE, PieceType.KNIGHT))
-        
-        self.add_piece(Coordinate(Ring.C, 15), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 15), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.C, 14), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 14), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-
-        # Center Column (Slice 13)
+        # WHITE PIECES (Bottom Loop, Center is Slice 13)
+        # Royals: Line up in Slice 13
         self.add_piece(Coordinate(Ring.D, 13), Piece(Color.WHITE, PieceType.KING))
         self.add_piece(Coordinate(Ring.C, 13), Piece(Color.WHITE, PieceType.QUEEN))
         self.add_piece(Coordinate(Ring.B, 13), Piece(Color.WHITE, PieceType.BISHOP))
         self.add_piece(Coordinate(Ring.A, 13), Piece(Color.WHITE, PieceType.BISHOP))
 
-        # Right Flank (Slices 10, 11, 12) - Note: moving -1 takes them to 9 then 8
-        self.add_piece(Coordinate(Ring.C, 12), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 12), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.C, 11), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 11), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-        
-        self.add_piece(Coordinate(Ring.D, 10), Piece(Color.WHITE, PieceType.ROOK))
-        self.add_piece(Coordinate(Ring.C, 10), Piece(Color.WHITE, PieceType.KNIGHT))
-        
-        # BLACK PIECES (Center is Slice 4)
-        # Left Flank (Slices 5, 6, 7) - moving +1 takes them to 8 then 9
-        self.add_piece(Coordinate(Ring.D, 7), Piece(Color.BLACK, PieceType.ROOK))
-        self.add_piece(Coordinate(Ring.C, 7), Piece(Color.BLACK, PieceType.KNIGHT))
-        
-        self.add_piece(Coordinate(Ring.C, 6), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 6), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.C, 5), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-        self.add_piece(Coordinate(Ring.B, 5), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+        # Flanking Rooks and Knights
+        self.add_piece(Coordinate(Ring.D, 15), Piece(Color.WHITE, PieceType.ROOK))
+        self.add_piece(Coordinate(Ring.C, 15), Piece(Color.WHITE, PieceType.KNIGHT))
+        self.add_piece(Coordinate(Ring.D, 11), Piece(Color.WHITE, PieceType.ROOK))
+        self.add_piece(Coordinate(Ring.C, 11), Piece(Color.WHITE, PieceType.KNIGHT))
 
-        # Center Column (Slice 4)
+        # Pawns: 8 pawns distributed symmetrically
+        # Based on the image, they form a "bracket" around the hole
+        for s in [14, 15, 16, 17, 18, 1, 2]: # This seems wrong based on the image center 13
+            pass # wait, let me look closer at the image.
+
+        # Correcting White Pawn placement based on the image:
+        # Slices relative to center 13: 14, 15, 16, 17 (Left) and 12, 11, 10, 9 (Right)
+        # Looking at the JPEG:
+        # 4 pawns on the left hole flank, 4 pawns on the right hole flank.
+        self.add_piece(Coordinate(Ring.B, 15), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+        self.add_piece(Coordinate(Ring.B, 16), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+        self.add_piece(Coordinate(Ring.B, 17), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+        self.add_piece(Coordinate(Ring.B, 18), Piece(Color.WHITE, PieceType.PAWN, direction=1))
+        
+        self.add_piece(Coordinate(Ring.B, 11), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 10), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 9), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 8), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+
+        # BLACK PIECES (Top Loop, Center is Slice 4)
+        # Royals: Line up in Slice 4
         self.add_piece(Coordinate(Ring.D, 4), Piece(Color.BLACK, PieceType.KING))
         self.add_piece(Coordinate(Ring.C, 4), Piece(Color.BLACK, PieceType.QUEEN))
         self.add_piece(Coordinate(Ring.B, 4), Piece(Color.BLACK, PieceType.BISHOP))
         self.add_piece(Coordinate(Ring.A, 4), Piece(Color.BLACK, PieceType.BISHOP))
 
-        # Right Flank (Slices 1, 2, 3) - moving -1 takes them to 18 then 17
-        self.add_piece(Coordinate(Ring.C, 3), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 3), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.C, 2), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-        self.add_piece(Coordinate(Ring.B, 2), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+        # Flanking Rooks and Knights
+        self.add_piece(Coordinate(Ring.D, 2), Piece(Color.BLACK, PieceType.ROOK))
+        self.add_piece(Coordinate(Ring.C, 2), Piece(Color.BLACK, PieceType.KNIGHT))
+        self.add_piece(Coordinate(Ring.D, 6), Piece(Color.BLACK, PieceType.ROOK))
+        self.add_piece(Coordinate(Ring.C, 6), Piece(Color.BLACK, PieceType.KNIGHT))
+
+        # Pawns: 8 pawns distributed symmetrically around slice 4
+        # Left side: 5, 6, 7, 8
+        self.add_piece(Coordinate(Ring.B, 5), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+        self.add_piece(Coordinate(Ring.B, 6), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+        self.add_piece(Coordinate(Ring.B, 7), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+        self.add_piece(Coordinate(Ring.B, 8), Piece(Color.BLACK, PieceType.PAWN, direction=1))
         
-        self.add_piece(Coordinate(Ring.D, 1), Piece(Color.BLACK, PieceType.ROOK))
-        self.add_piece(Coordinate(Ring.C, 1), Piece(Color.BLACK, PieceType.KNIGHT))
+        # Right side: 3, 2, 1, 18
+        self.add_piece(Coordinate(Ring.B, 3), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 2), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 1), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+        self.add_piece(Coordinate(Ring.B, 18), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
+
 
     def get_tile_color(self, coord: Coordinate) -> str:
         colors = ["RED", "GREEN", "YELLOW", "BLUE"]

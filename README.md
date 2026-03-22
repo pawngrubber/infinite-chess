@@ -58,6 +58,15 @@ The game features an intricate starting position to populate the infinite loops,
 *(Note: Due to the complex geometric nature of this layout, standard castling rules are currently not supported in this variant.)*
 ![True Starting Position](assets/true_starting_position.jpeg)
 
+## Game Rules
+- **The Board**: A 72-tile lemniscate board with 4 rings (A-D) and 18 slices.
+- **True Starting Position**: Pieces are symmetrically mirrored across the two loops (White on Slice 13, Black on Slice 4).
+- **Topology**: Slice 9 and Slice 18 physically cross, allowing specialized movement through the center.
+- **Pawns**: 10-step promotion to Queen.
+- **Bishops**: Confined to their color complex paths.
+- **Mandatory En Passant**: If possible, it must be taken.
+- **No Castling**: Not supported in this wedge geometry.
+
 ### Pawns
 Pawns move forward along their loop but must "remember" their direction. En Passant is fully supported and follows standard logic translated to the curved grid.
 ![Pawn Movement and Trans Passant](assets/pawn_trans_passant.png)
