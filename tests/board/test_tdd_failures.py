@@ -7,7 +7,7 @@ from board.board import Board, Piece, PieceType, Color
 from board.testing import scenario, capture_board
 
 @scenario(
-    id="IC-TDD-001",
+    
     name="Bishop Color Constraint",
     description="Bishops must strictly alternate between two specific colors of the 4-color tiling.",
     pass_condition="All moves for a Bishop land on its allowed color complex."
@@ -23,7 +23,7 @@ def test_bishop_color_constraint():
         assert b.get_tile_color(m.end) in ["GREEN", "BLUE"]
 
 @scenario(
-    id="IC-TDD-002",
+    
     name="Pawn Promotion (10 Steps)",
     description="Pawns must travel exactly 10 spaces on the figure-eight track to promote.",
     pass_condition="Promotion is only available when moves_made is 9 or more."
@@ -41,7 +41,7 @@ def test_pawn_10_space_promotion():
     assert any(m.promotion == PieceType.QUEEN for m in moves)
 
 @scenario(
-    id="IC-TDD-003",
+    
     name="Knight Wormhole Jump",
     description="Knights can jump across the physical intersection between Slice 9 and 18.",
     pass_condition="Knight at A9 has a legal jump to C18 across the intersection."
@@ -56,7 +56,7 @@ def test_knight_true_lemniscate_jump():
     assert Coordinate(Ring.C, 18) in ends
 
 @scenario(
-    id="IC-TDD-004",
+    
     name="Checkmate Recognition",
     description="The engine must correctly identify when the King is trapped in check.",
     pass_condition="is_checkmate returns True when no legal escape exists."

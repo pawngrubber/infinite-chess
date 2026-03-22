@@ -13,7 +13,7 @@ from board.board import Board, Piece, PieceType, Color, Move
 from board.testing import scenario, capture_board
 
 @scenario(
-    id="IC-COMP-001",
+    
     name="Absolute Pin Diagonal",
     description="A piece pinned to the King diagonally can only move along that diagonal.",
     pass_condition="Legal moves for the pinned Bishop are restricted to the diagonal."
@@ -33,7 +33,7 @@ def test_absolute_pin_diagonal():
     assert all(m.end.ring.value - Ring.A.value == m.end.slice - 1 for m in moves)
 
 @scenario(
-    id="IC-COMP-002",
+    
     name="Double Check Evasion",
     description="When in double check, the only legal move is for the King to move.",
     pass_condition="Non-King pieces have zero legal moves during a double check."
@@ -53,7 +53,7 @@ def test_double_check_forces_king_move():
     assert len(king_moves) > 0
 
 @scenario(
-    id="IC-COMP-003",
+    
     name="Pinned Piece Power",
     description="A pinned piece still projects threat and can deliver check.",
     pass_condition="The enemy King is in check even if the checking piece is pinned."
@@ -70,7 +70,7 @@ def test_pinned_piece_projects_check():
     assert b.is_in_check(Color.BLACK)
 
 @scenario(
-    id="IC-COMP-004",
+    
     name="Around The World Advanced",
     description="Blocking one path of a loop check doesn't necessarily block the other.",
     pass_condition="King remains in check if only one direction of the loop is blocked."

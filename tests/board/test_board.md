@@ -11,29 +11,7 @@ The Black King is reported as being 'In Check'.
 
 <img src='assets/test_board/test_around_the_world_check.svg' width='600'>
 
-## [IC-002] Self Intersection
-**Test**: `test_self_intersection`
-
-**Description**:
-Test that a sliding piece does not count its own square as a move after a full lap.
-
-**Pass Condition (Boolean Check)**:
-No move end coordinate matches the start coordinate.
-
-<img src='assets/test_board/test_self_intersection.svg' width='600'>
-
-## [IC-003] Pin Slide
-**Test**: `test_pin_slide`
-
-**Description**:
-Test that a Rook pinned along a ring CAN move along that same ring, but CANNOT step off it.
-
-**Pass Condition (Boolean Check)**:
-All legal moves for the Rook stay on Ring A.
-
-<img src='assets/test_board/test_pin_slide.svg' width='600'>
-
-## [IC-004] En Passant
+## [IC-002] En Passant
 **Test**: `test_en_passant`
 
 **Description**:
@@ -44,7 +22,7 @@ A move exists with the 'is_en_passant' flag set to true.
 
 <img src='assets/test_board/test_en_passant.svg' width='600'>
 
-## [IC-005] King Teleportation Check
+## [IC-003] King Teleportation Check
 **Test**: `test_king_teleportation_check`
 
 **Description**:
@@ -54,3 +32,25 @@ Test King intersection jump check legality at the crossing slices 9 and 18.
 The King can capture an unprotected piece across the intersection.
 
 <img src='assets/test_board/test_king_teleportation_check.svg' width='600'>
+
+## [IC-004] Pin Slide
+**Test**: `test_pin_slide`
+
+**Description**:
+Test that a Rook pinned along a ring CAN move along that same ring, but CANNOT step off it.
+
+**Pass Condition (Boolean Check)**:
+All legal moves for the Rook stay on Ring A.
+
+<img src='assets/test_board/test_pin_slide.svg' width='600'>
+
+## [IC-005] Self Intersection
+**Test**: `test_self_intersection`
+
+**Description**:
+Test that a sliding piece does not count its own square as a move after a full lap.
+
+**Pass Condition (Boolean Check)**:
+No move end coordinate matches the start coordinate.
+
+<img src='assets/test_board/test_self_intersection.svg' width='600'>

@@ -13,7 +13,7 @@ from board.board import Board, Piece, PieceType, Color
 from board.testing import scenario, capture_board
 
 @scenario(
-    id="IC-PAWN-001",
+    
     name="White Forward Path (Avoids Own Base)",
     description="White 'Forward' pawns start at Slice 17 and move UP (+1) towards Slice 4. They must skip Slices 12-16 to avoid their own base and back rank.",
     pass_condition="White Forward pawn path is 17->18->1->2->3->4(Promote)."
@@ -42,7 +42,7 @@ def test_white_forward_path():
     assert all(s not in [13, 14, 15, 16] for s in slices)
 
 @scenario(
-    id="IC-PAWN-002",
+    
     name="White Base Pawn Path",
     description="White pawns starting at the base (Slice 13) must move DOWN (-1) towards Slice 4 to avoid forbidden slices 14-16.",
     pass_condition="White Base pawn path is 13->12->11->10->9->8->7->6->5->4(Promote)."
@@ -67,7 +67,7 @@ def test_white_base_pawn_path():
     assert all(s not in [14, 15, 16] for s in slices)
 
 @scenario(
-    id="IC-PAWN-003",
+    
     name="Black Mirror Forward Path",
     description="Black 'Forward' pawns start at Slice 18 (mirror of White 17) and move DOWN (-1) towards Slice 15. They must skip Slices 4-1 to avoid their own base.",
     pass_condition="Black Forward pawn path is 18->17->16->15(Promote)."
@@ -93,7 +93,7 @@ def test_black_forward_path():
     assert all(s not in [4, 3, 2, 1] for s in slices)
 
 @scenario(
-    id="IC-PAWN-004",
+    
     name="Black Base Pawn Path",
     description="Black pawns starting at their base (Slice 4) must move UP (+1) towards Slice 15.",
     pass_condition="Black Base pawn path is 4->5->6->7->8->9->10->11->12->13->14->15(Promote)."
@@ -118,7 +118,7 @@ def test_black_base_pawn_path():
     assert all(s not in [3, 2, 1] for s in slices)
 
 @scenario(
-    id="IC-PAWN-005",
+    
     name="Head-On Pawn Collision",
     description="Two pawns from different loops meeting head-on at the intersection must block each other.",
     pass_condition="Neither pawn can move forward into the occupied square."

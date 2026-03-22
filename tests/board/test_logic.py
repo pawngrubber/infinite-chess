@@ -13,7 +13,7 @@ from board.board import Board, Piece, PieceType, Color
 from board.testing import scenario, capture_board
 
 @scenario(
-    id="IC-LOG-001",
+    
     name="Rook Movement Geometry",
     description="Test that Rooks move along rings and slices on an empty board.",
     pass_condition="Rook moves to adjacent rings and wraps around the same ring."
@@ -30,7 +30,7 @@ def test_rook_moves():
     assert Coordinate(Ring.D, 1) in moves
 
 @scenario(
-    id="IC-LOG-002",
+    
     name="Bishop Diagonal Geometry",
     description="Test that Bishops move along diagonals, changing both ring and slice.",
     pass_condition="Bishop moves diagonally to adjacent rings and slices."
@@ -46,7 +46,7 @@ def test_bishop_moves():
     assert Coordinate(Ring.C, 1) in moves
 
 @scenario(
-    id="IC-LOG-003",
+    
     name="Knight L-Shape Jumps",
     description="Test Knight movement on the curved manifold.",
     pass_condition="Knight performs valid L-shaped jumps, including wrapping."
@@ -62,7 +62,7 @@ def test_knight_moves():
     assert Coordinate(Ring.C, 18) in moves
 
 @scenario(
-    id="IC-LOG-004",
+    
     name="King Intersect Jump",
     description="Test King movement across the physical intersection (Slice 9 to 18).",
     pass_condition="King can jump directly from Slice 9 to Slice 18."
@@ -76,7 +76,7 @@ def test_king_moves():
     assert Coordinate(Ring.A, 18) in moves
 
 @scenario(
-    id="IC-LOG-005",
+    
     name="Pawn Forward Step",
     description="Test Pawn movement following the loop direction.",
     pass_condition="Pawn moves one step forward and wraps correctly."

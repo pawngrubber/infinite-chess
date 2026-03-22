@@ -5,12 +5,12 @@ from .board import Board
 @dataclass
 class Scenario:
     """Metadata for a chess test scenario used for documentation generation."""
-    id: str
+    id: Optional[str]
     name: str
     description: str
     pass_condition: str
 
-def scenario(id: str, name: str, description: str, pass_condition: str):
+def scenario(name: str, description: str, pass_condition: str, id: Optional[str] = None):
     """Decorator to attach scenario metadata to a test function."""
     def decorator(func: Callable):
         func._scenario = Scenario(
