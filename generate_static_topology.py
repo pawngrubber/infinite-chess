@@ -15,13 +15,12 @@ def polar_to_cartesian(cx, cy, r, angle):
     }
 
 def generate_topology_svg(filename):
-    # Significantly wider canvas to accommodate the 45-degree rotated figure-eight
-    width, height = 2400, 1600
+    # Wider aspect ratio (2:1) to fit the horizontal manifold with less vertical padding
+    width, height = 2400, 1200
     dwg = svgwrite.Drawing(filename, size=(width, height), viewBox=f"0 0 {width} {height}")
     dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='#000000'))
     
-    # Center the group in the 2400x1600 canvas.
-    # No extra scale needed if the canvas is large enough, which makes pieces crisper.
+    # Center the group in the 2400x1200 canvas
     main_group = dwg.g(id='board-group', transform=f'translate({width/2}, {height/2}) rotate(45) translate(-200, -200)')
     dwg.add(main_group)
 
