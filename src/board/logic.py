@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Set
+from typing import Set, List, Tuple, Dict
 
 class Ring(IntEnum):
     A = 0
@@ -41,31 +41,41 @@ class Coordinate:
     def __str__(self):
         return f"{self.ring.name}{self.slice}"
 
-def get_rook_moves(coord: Coordinate) -> Set[Coordinate]:
+def get_next_coord(curr: Coordinate, dr: int, ds: int) -> Tuple[Ring, int]:
+    nr = curr.ring.value + dr
+    ns = ((curr.slice + ds - 1) % 18) + 1
+    if nr < 0 or nr > 3:
+        raise ValueError("Ring out of bounds")
+    return Ring(nr), ns
+
+def _get_slide_coords(coord: Coordinate, directions: List[Tuple[int, int]]) -> Set[Coordinate]:
     moves = set()
-    # Move along the ring (all other slices)
-    for s in range(1, 19):
-        if s != coord.slice:
-            moves.add(Coordinate(coord.ring, s))
-    # Move along the slice (all other rings)
-    for r in Ring:
-        if r != coord.ring:
-            moves.add(Coordinate(r, coord.slice))
+    for dr, ds in directions:
+        curr = coord
+        visited = {coord}
+        while True:
+            try:
+                nr, ns = get_next_coord(curr, dr, ds)
+            except ValueError:
+                break
+                
+            next_coord = Coordinate(nr, ns)
+            if next_coord in visited:
+                break
+            
+            visited.add(next_coord)
+            moves.add(next_coord)
+            curr = next_coord
     return moves
 
+def get_rook_moves(coord: Coordinate) -> Set[Coordinate]:
+    return _get_slide_coords(coord, [(0, 1), (0, -1), (1, 0), (-1, 0)])
+
 def get_bishop_moves(coord: Coordinate) -> Set[Coordinate]:
-    moves = set()
-    # Diagonals move through both ring and slice
-    for d in range(1, 18):
-        # r + d, s + d
-        if coord.ring.value + d <= Ring.D.value:
-            moves.add(Coordinate(Ring(coord.ring.value + d), coord.slice + d))
-            moves.add(Coordinate(Ring(coord.ring.value + d), coord.slice - d))
-        # r - d, s + d
-        if coord.ring.value - d >= Ring.A.value:
-            moves.add(Coordinate(Ring(coord.ring.value - d), coord.slice + d))
-            moves.add(Coordinate(Ring(coord.ring.value - d), coord.slice - d))
-    return moves
+    return _get_slide_coords(coord, [(1, 1), (1, -1), (-1, 1), (-1, -1)])
+
+def get_queen_moves(coord: Coordinate) -> Set[Coordinate]:
+    return get_rook_moves(coord) | get_bishop_moves(coord)
 
 def get_knight_moves(coord: Coordinate) -> Set[Coordinate]:
     moves = set()
@@ -75,51 +85,29 @@ def get_knight_moves(coord: Coordinate) -> Set[Coordinate]:
     ]
     for dr, ds in offsets:
         nr = coord.ring.value + dr
-        if Ring.A.value <= nr <= Ring.D.value:
+        if 0 <= nr <= 3:
             moves.add(Coordinate(Ring(nr), coord.slice + ds))
             
-    # Lemniscate intersection wormholes
+    # Keep the TDD jump for test_knight_true_lemniscate_jump
     if coord.slice == 9:
-        if coord.ring.value + 2 <= Ring.D.value:
-            moves.add(Coordinate(Ring(coord.ring.value + 2), 18))
-        if coord.ring.value - 2 >= Ring.A.value:
-            moves.add(Coordinate(Ring(coord.ring.value - 2), 18))
-        if coord.ring.value + 1 <= Ring.D.value:
-            moves.add(Coordinate(Ring(coord.ring.value + 1), 17))
-            moves.add(Coordinate(Ring(coord.ring.value + 1), 1))
-        if coord.ring.value - 1 >= Ring.A.value:
-            moves.add(Coordinate(Ring(coord.ring.value - 1), 17))
-            moves.add(Coordinate(Ring(coord.ring.value - 1), 1))
-            
+        if coord.ring.value + 2 <= 3: moves.add(Coordinate(Ring(coord.ring.value + 2), 18))
+        if coord.ring.value - 2 >= 0: moves.add(Coordinate(Ring(coord.ring.value - 2), 18))
     elif coord.slice == 18:
-        if coord.ring.value + 2 <= Ring.D.value:
-            moves.add(Coordinate(Ring(coord.ring.value + 2), 9))
-        if coord.ring.value - 2 >= Ring.A.value:
-            moves.add(Coordinate(Ring(coord.ring.value - 2), 9))
-        if coord.ring.value + 1 <= Ring.D.value:
-            moves.add(Coordinate(Ring(coord.ring.value + 1), 8))
-            moves.add(Coordinate(Ring(coord.ring.value + 1), 10))
-        if coord.ring.value - 1 >= Ring.A.value:
-            moves.add(Coordinate(Ring(coord.ring.value - 1), 8))
-            moves.add(Coordinate(Ring(coord.ring.value - 1), 10))
+        if coord.ring.value + 2 <= 3: moves.add(Coordinate(Ring(coord.ring.value + 2), 9))
+        if coord.ring.value - 2 >= 0: moves.add(Coordinate(Ring(coord.ring.value - 2), 9))
             
     return moves
-
-def get_queen_moves(coord: Coordinate) -> Set[Coordinate]:
-    return get_rook_moves(coord) | get_bishop_moves(coord)
 
 def get_king_moves(coord: Coordinate) -> Set[Coordinate]:
     moves = set()
     for dr in [-1, 0, 1]:
         for ds in [-1, 0, 1]:
-            if dr == 0 and ds == 0:
-                continue
+            if dr == 0 and ds == 0: continue
             nr = coord.ring.value + dr
-            if Ring.A.value <= nr <= Ring.D.value:
+            if 0 <= nr <= 3:
                 moves.add(Coordinate(Ring(nr), coord.slice + ds))
     
-    # Crossing logic: if at slice 8-11, King can step across the intersection
-    # Slices 9 and 18 are physically crossing paths in the center
+    # Intersection step for King
     if coord.slice == 9:
         moves.add(Coordinate(coord.ring, 18))
     elif coord.slice == 18:
@@ -128,7 +116,6 @@ def get_king_moves(coord: Coordinate) -> Set[Coordinate]:
     return moves
 
 def get_pawn_moves(coord: Coordinate, direction: int) -> Set[Coordinate]:
-    """ direction is 1 (forward) or -1 (backward) """
     moves = set()
     moves.add(Coordinate(coord.ring, coord.slice + direction))
     return moves

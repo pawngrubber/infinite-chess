@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Dict, List, Set, Optional, Tuple, Iterator, Iterable
-from .logic import Coordinate, Ring, get_knight_moves, get_king_moves
+from .logic import Coordinate, Ring, get_knight_moves, get_king_moves, get_next_coord
 
 class Color(Enum):
     WHITE = 1
@@ -89,7 +89,7 @@ class Board:
         self.en_passant_target: Optional[Coordinate] = None
         self.turn = Color.WHITE
         self.move_stack: List[Move] = []
-        self._state_stack: List[Tuple[Optional[Coordinate], Color]] = [] # (ep_target, turn)
+        self._state_stack: List[Tuple[Optional[Coordinate], Color, int]] = [] # (ep_target, turn, prev_moves_made)
 
     @property
     def legal_moves(self) -> LegalMoveGenerator:
@@ -199,8 +199,6 @@ class Board:
         return set(self._get_pseudo_legal_moves_for_piece(coord))
 
     def generate_legal_moves(self) -> Iterator[Move]:
-        # Collect ALL pseudo legal moves first!
-        # This is critical because is_legal calls push/pop which modifies board state.
         pseudo = list(self.generate_pseudo_legal_moves())
         for move in pseudo:
             if self.is_legal(move):
@@ -212,7 +210,6 @@ class Board:
             return False
         
         self.push(move)
-        # Check if own king is in check after the move
         was_legal = not self.is_check_for_color(piece.color)
         self.pop()
         return was_legal
@@ -229,13 +226,21 @@ class Board:
         if not piece:
             return
 
-        # Store undo info: (move, captured_piece, captured_coord, prev_ep_target, prev_turn, prev_moves_made)
         captured_piece = self.squares.get(move.end)
         captured_coord = move.end
         
         if move.is_en_passant:
-            captured_coord = Coordinate(move.end.ring, move.end.slice - piece.direction)
-            captured_piece = self.squares.get(captured_coord)
+            # En passant capture logic needs careful coordinate calculation
+            try:
+                # Find the pawn that moved previously (should be at slice - piece.direction relative to end)
+                # But en passant target logic in push() handles target coordinate already.
+                # Standard en passant: captured piece is 1 step 'behind' the target square
+                # For our curved grid, we'll assume standard EP logic:
+                cap_r, cap_s = get_next_coord(move.end, 0, -piece.direction)
+                captured_coord = Coordinate(cap_r, cap_s)
+                captured_piece = self.squares.get(captured_coord)
+            except (ValueError, IndexError):
+                pass
 
         undo_info = (move, captured_piece, captured_coord, self.en_passant_target, self.turn, piece.moves_made)
         self._state_stack.append(undo_info)
@@ -254,11 +259,17 @@ class Board:
         # En Passant target logic
         self.en_passant_target = None
         if piece.piece_type == PieceType.PAWN:
-            slice_diff = (move.end.slice - move.start.slice)
-            if abs(slice_diff) == 2 or abs(slice_diff) == 16:
-                direction = (slice_diff // abs(slice_diff) if abs(slice_diff) == 2 else -slice_diff // abs(slice_diff))
-                skipped_slice = ((move.start.slice + direction - 1) % 18) + 1
-                self.en_passant_target = Coordinate(move.start.ring, skipped_slice)
+            # If moved 2 steps
+            # This is hard to detect with get_next_coord loops, 
+            # but since double push is always +2/-2 offset in our current move gen:
+            # We'll just check if start and end are 2 steps apart.
+            try:
+                r1, s1 = get_next_coord(move.start, 0, piece.direction)
+                r2, s2 = get_next_coord(Coordinate(r1, s1), 0, piece.direction)
+                if move.end == Coordinate(r2, s2):
+                    self.en_passant_target = Coordinate(r1, s1)
+            except (ValueError, IndexError):
+                pass
 
         self.turn = Color.BLACK if self.turn == Color.WHITE else Color.WHITE
         self.move_stack.append(move)
@@ -270,18 +281,15 @@ class Board:
         move, captured_piece, captured_coord, prev_ep_target, prev_turn, prev_moves_made = self._state_stack.pop()
         self.move_stack.pop()
 
-        # Reverse piece move
         piece = self.squares.pop(move.end)
         if move.promotion:
             piece.piece_type = PieceType.PAWN
         piece.moves_made = prev_moves_made
         self.squares[move.start] = piece
 
-        # Restore capture
         if captured_piece:
             self.squares[captured_coord] = captured_piece
 
-        # Restore state
         self.en_passant_target = prev_ep_target
         self.turn = prev_turn
         
@@ -294,12 +302,37 @@ class Board:
         return None
 
     def is_square_attacked(self, coord: Coordinate, by_color: Color) -> bool:
-        # Save current turn to check attacks
         original_turn = self.turn
         self.turn = by_color
         is_attacked = any(move.end == coord for move in self.generate_pseudo_legal_moves())
         self.turn = original_turn
         return is_attacked
+
+    def _slide_moves(self, start: Coordinate, piece: Piece, directions: List[Tuple[int, int]]) -> Iterator[Move]:
+        for dr, ds in directions:
+            curr = start
+            visited = {start}
+            while True:
+                try:
+                    nr, ns = get_next_coord(curr, dr, ds)
+                except (ValueError, IndexError):
+                    break
+                
+                if nr < Ring.A.value or nr > Ring.D.value:
+                    break
+                
+                next_coord = Coordinate(nr, ns)
+                if next_coord in visited:
+                    break
+                visited.add(next_coord)
+                
+                target = self.squares.get(next_coord)
+                if target:
+                    if target.color != piece.color:
+                        yield Move(start, next_coord, is_capture=True)
+                    break
+                yield Move(start, next_coord)
+                curr = next_coord
 
     def _get_pseudo_legal_moves_for_piece(self, coord: Coordinate) -> Iterator[Move]:
         piece = self.squares[coord]
@@ -321,43 +354,35 @@ class Board:
                     yield Move(coord, end_coord, is_capture=bool(target))
         elif piece.piece_type == PieceType.PAWN:
             # Forward
-            forward = Coordinate(coord.ring, coord.slice + piece.direction)
-            if forward not in self.squares:
-                yield Move(coord, forward, promotion=PieceType.QUEEN if piece.moves_made >= 9 else None)
-                if piece.moves_made == 0:
-                    double = Coordinate(coord.ring, coord.slice + piece.direction * 2)
-                    if double not in self.squares:
-                        yield Move(coord, double)
+            try:
+                nr, ns = get_next_coord(coord, 0, piece.direction)
+                forward = Coordinate(nr, ns)
+                if forward not in self.squares:
+                    yield Move(coord, forward, promotion=PieceType.QUEEN if piece.moves_made >= 9 else None)
+                    if piece.moves_made == 0:
+                        try:
+                            nr2, ns2 = get_next_coord(forward, 0, piece.direction)
+                            double = Coordinate(nr2, ns2)
+                            if double not in self.squares:
+                                yield Move(coord, double)
+                        except (ValueError, IndexError):
+                            pass
+            except (ValueError, IndexError):
+                pass
+                
             # Captures
             for dr in [-1, 1]:
                 if Ring.A.value <= coord.ring.value + dr <= Ring.D.value:
-                    cap_coord = Coordinate(Ring(coord.ring.value + dr), coord.slice + piece.direction)
-                    target = self.squares.get(cap_coord)
-                    if target and target.color != piece.color:
-                        yield Move(coord, cap_coord, is_capture=True, promotion=PieceType.QUEEN if piece.moves_made >= 9 else None)
-                    elif cap_coord == self.en_passant_target:
-                        yield Move(coord, cap_coord, is_capture=True, is_en_passant=True)
-
-    def _slide_moves(self, start: Coordinate, piece: Piece, directions: List[Tuple[int, int]]) -> Iterator[Move]:
-        for dr, ds in directions:
-            r = start.ring.value
-            s = start.slice
-            visited = set()
-            while True:
-                r += dr
-                s += ds
-                if r < Ring.A.value or r > Ring.D.value:
-                    break
-                curr = Coordinate(Ring(r), s)
-                if curr in visited:
-                    break
-                visited.add(curr)
-                target = self.squares.get(curr)
-                if target:
-                    if target.color != piece.color:
-                        yield Move(start, curr, is_capture=True)
-                    break
-                yield Move(start, curr)
+                    try:
+                        nr, ns = get_next_coord(coord, dr, piece.direction)
+                        cap_coord = Coordinate(nr, ns)
+                        target = self.squares.get(cap_coord)
+                        if target and target.color != piece.color:
+                            yield Move(coord, cap_coord, is_capture=True, promotion=PieceType.QUEEN if piece.moves_made >= 9 else None)
+                        elif cap_coord == self.en_passant_target:
+                            yield Move(coord, cap_coord, is_capture=True, is_en_passant=True)
+                    except (ValueError, IndexError):
+                        pass
 
     def get_legal_moves(self, coord: Coordinate) -> Set[Move]:
         """ Compatibility method for pieces """
