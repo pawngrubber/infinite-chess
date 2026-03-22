@@ -297,5 +297,17 @@ class Board:
             
         piece.moves_made += 1
         new_board.add_piece(move.end, piece)
+        
+        # En Passant target logic
+        new_board.en_passant_target = None
+        if piece.piece_type == PieceType.PAWN:
+            # If the move distance was 2, set the target to the square skipped
+            # In our coordinate system, slice difference handles this
+            # We need to calculate the actual slice distance correctly considering wrapping
+            slice_diff = (move.end.slice - move.start.slice)
+            if abs(slice_diff) == 2 or abs(slice_diff) == 16: # 16 is distance 2 the other way around the 18-slice loop
+                skipped_slice = ((move.start.slice + (slice_diff // abs(slice_diff) if abs(slice_diff) == 2 else -slice_diff // abs(slice_diff)) - 1) % 18) + 1
+                new_board.en_passant_target = Coordinate(move.start.ring, skipped_slice)
+
         new_board.turn = Color.BLACK if self.turn == Color.WHITE else Color.WHITE
         return new_board
