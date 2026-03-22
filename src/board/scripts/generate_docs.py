@@ -63,8 +63,8 @@ def main():
         for func in functions:
             s: Scenario = func._scenario
             
-            # Autogenerate ID if not provided
-            test_id = s.id if s.id else f"IC-{global_id_counter:03d}"
+            # Purely numerical ID
+            test_id = global_id_counter
             global_id_counter += 1
             
             try:
