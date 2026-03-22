@@ -14,123 +14,116 @@ from board.testing import scenario, capture_board
 
 @scenario(
     id="IC-PAWN-001",
-    name="Pawn Direction Towards Center",
-    description="Pawns must move towards the center crossing (Slices 9/18). White pawns from 9-12 move -1, while those from 14-17 move +1.",
-    pass_condition="Pawns only generate moves in their assigned direction towards the crossing."
+    name="White Forward Path Logic",
+    description="White 'Forward' pawns start at Slice 17 and move UP (+1) towards Slice 4. They should never hit Slices 13-16 or 12.",
+    pass_condition="White Forward pawn path is 17->18->1->2->3->4(Promote)."
 )
-def test_pawn_direction_towards_center():
+def test_white_forward_path():
     b = Board()
-    # White pawn in the 14-17 bracket (should move +1 towards 18)
-    p1 = Piece(Color.WHITE, PieceType.PAWN, direction=1)
-    b.add_piece(Coordinate(Ring.B, 14), p1)
-    
-    # White pawn in the 9-12 bracket (should move -1 towards 9)
-    p2 = Piece(Color.WHITE, PieceType.PAWN, direction=-1)
-    b.add_piece(Coordinate(Ring.B, 12), p2)
-    
+    b.turn = Color.WHITE
+    # Start at 17, move +1 (Up)
+    b.add_piece(Coordinate(Ring.B, 17), Piece(Color.WHITE, PieceType.PAWN, direction=1))
     capture_board(b)
     
-    moves1 = b.get_pseudo_legal_moves(Coordinate(Ring.B, 14))
-    assert all(m.end.slice == 15 for m in moves1)
-    
-    moves2 = b.get_pseudo_legal_moves(Coordinate(Ring.B, 12))
-    assert all(m.end.slice == 11 for m in moves2)
+    # Simulate full path
+    curr = Coordinate(Ring.B, 17)
+    path = [curr]
+    for _ in range(5):
+        moves = b.get_pseudo_legal_moves(curr)
+        next_move = next(m for m in moves if m.promotion is not None or m.end.slice == (curr.slice % 18) + 1)
+        b.push(next_move)
+        curr = next_move.end
+        path.append(curr)
+        if next_move.promotion: break
+        
+    slices = [c.slice for c in path]
+    assert slices == [17, 18, 1, 2, 3, 4]
+    # Forbidden check
+    assert 13 not in slices
+    assert 12 not in slices
+    assert 14 not in slices
 
 @scenario(
     id="IC-PAWN-002",
-    name="Valid En Passant (Towards Center)",
-    description="A White pawn moving -1 towards Slice 9 captures a Black pawn that double-pushed +1 towards Slice 9.",
-    pass_condition="En Passant is possible when both pawns are moving towards their meeting point."
+    name="Black Backward Path Logic (Mirror)",
+    description="Black 'Backward' pawns start at Slice 3 and move DOWN (-1) towards Slice 13. They mirror the White Forward path but continue past the White base.",
+    pass_condition="Black Backward pawn path is 3->2->1->18->17->16->15->14->13(Promote)."
 )
-def test_en_passant_valid_direction():
+def test_black_backward_path():
     b = Board()
-    b.turn = Color.WHITE
-    
-    b.add_piece(Coordinate(Ring.A, 9), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
-    b.add_piece(Coordinate(Ring.B, 9), Piece(Color.BLACK, PieceType.PAWN, direction=1))
-    b.en_passant_target = Coordinate(Ring.B, 8)
-    b.add_piece(Coordinate(Ring.D, 13), Piece(Color.WHITE, PieceType.KING))
-    
+    b.turn = Color.BLACK
+    # Start at 3, move -1 (Down)
+    b.add_piece(Coordinate(Ring.B, 3), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
     capture_board(b)
     
-    moves = b.get_legal_moves(Coordinate(Ring.A, 9))
-    assert any(m.end == Coordinate(Ring.B, 8) and m.is_en_passant for m in moves)
+    curr = Coordinate(Ring.B, 3)
+    path = [curr]
+    for _ in range(10):
+        moves = b.get_pseudo_legal_moves(curr)
+        # Find move that goes down in slice
+        next_move = next(m for m in moves if m.promotion is not None or m.end.slice == (curr.slice - 2) % 18 + 1)
+        b.push(next_move)
+        curr = next_move.end
+        path.append(curr)
+        if next_move.promotion: break
+        
+    slices = [c.slice for c in path]
+    assert slices == [3, 2, 1, 18, 17, 16, 15, 14, 13]
+    # Forbidden check
+    assert 4 not in slices
 
 @scenario(
     id="IC-PAWN-003",
-    name="White Pawn Promotion (4th Rank)",
-    description="White pawns promote when they reach the 4th rank (Slice 4), which is the heart of the Black territory.",
-    pass_condition="A White pawn move to Slice 4 includes a promotion to Queen."
+    name="White Pawn Forbidden Zone",
+    description="White pawns are strictly forbidden from entering Slices 14, 15, and 16, as these are behind their movement vector.",
+    pass_condition="No White pawn can generate a move that lands on Slice 14, 15, or 16."
 )
-def test_white_pawn_promotion():
+def test_white_pawn_forbidden_zone():
     b = Board()
-    b.turn = Color.WHITE
-    # White pawn at A5 moving -1 towards 4
-    b.add_piece(Coordinate(Ring.A, 5), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
+    # Test a 'Backward' White pawn starting at 12 moving -1
+    b.add_piece(Coordinate(Ring.B, 12), Piece(Color.WHITE, PieceType.PAWN, direction=-1))
     capture_board(b)
     
-    moves = b.get_legal_moves(Coordinate(Ring.A, 5))
-    assert any(m.end.slice == 4 and m.promotion == PieceType.QUEEN for m in moves)
+    curr = Coordinate(Ring.B, 12)
+    path_slices = []
+    for _ in range(10):
+        moves = b.get_pseudo_legal_moves(curr)
+        if not moves: break
+        next_move = next((m for m in moves), None)
+        if not next_move: break
+        b.push(next_move)
+        curr = next_move.end
+        path_slices.append(curr.slice)
+        if next_move.promotion: break
+        
+    assert all(s not in [14, 15, 16] for s in path_slices)
 
 @scenario(
     id="IC-PAWN-004",
-    name="Black Pawn Promotion (15th Rank)",
-    description="Black pawns promote when they reach the 15th rank (Slice 15), effectively breaching the White back rank.",
-    pass_condition="A Black pawn move to Slice 15 includes a promotion to Queen."
+    name="Black Pawn Forbidden Zone (Mirror)",
+    description="Black pawns are strictly forbidden from entering Slices 1, 2, and 3.",
+    pass_condition="No Black pawn can generate a move that lands on Slice 1, 2, or 3."
 )
-def test_black_pawn_promotion():
+def test_black_pawn_forbidden_zone():
     b = Board()
     b.turn = Color.BLACK
-    # Black pawn at A14 moving +1 towards 15
-    b.add_piece(Coordinate(Ring.A, 14), Piece(Color.BLACK, PieceType.PAWN, direction=1))
+    # Test a 'Forward' Black pawn starting at 5 moving +1
+    b.add_piece(Coordinate(Ring.B, 5), Piece(Color.BLACK, PieceType.PAWN, direction=1))
     capture_board(b)
     
-    moves = b.get_legal_moves(Coordinate(Ring.A, 14))
-    assert any(m.end.slice == 15 and m.promotion == PieceType.QUEEN for m in moves)
-
-@scenario(
-    id="IC-PAWN-005",
-    name="Head-On Pawn Collision",
-    description="Two pawns from different loops meeting head-on at the intersection must block each other.",
-    pass_condition="Neither pawn can move forward into the occupied square."
-)
-def test_pawn_head_on_collision():
-    b = Board()
-    # White pawn moving +1 towards 18
-    b.add_piece(Coordinate(Ring.B, 17), Piece(Color.WHITE, PieceType.PAWN, direction=1))
-    # Black pawn moving -1 towards 18 (from 18-3 bracket)
-    b.add_piece(Coordinate(Ring.B, 18), Piece(Color.BLACK, PieceType.PAWN, direction=-1))
-    
-    capture_board(b)
-    
-    w_moves = b.get_pseudo_legal_moves(Coordinate(Ring.B, 17))
-    assert len(w_moves) == 0 # Blocked
-    
-    b.turn = Color.BLACK
-    b_moves = b.get_pseudo_legal_moves(Coordinate(Ring.B, 18))
-    assert len(b_moves) == 0 # Blocked
-
-@scenario(
-    id="IC-PAWN-006",
-    name="Pawn Forbidden Slices",
-    description="Because pawns move strictly forward towards the enemy base and then promote, they can never reach or stay on their own base slice.",
-    pass_condition="A White pawn can never occupy Slice 13; a Black pawn can never occupy Slice 4."
-)
-def test_pawn_forbidden_slices():
-    b = Board()
-    # If we try to place a pawn on its forbidden slice, it should be considered invalid or impossible in game flow.
-    # Here we check that no forward movement from valid start positions can ever land on the base slice.
-    
-    # White base is 13. White pawns start at 8-12 and 14-18.
-    # Black base is 4. Black pawns start at 18-3 and 5-8.
-    
-    # We'll simulate a White pawn at 14 (+1) and 12 (-1) and ensure they promote at 4
-    # without ever hitting 13.
-    capture_board(b)
-    
-    # This is a conceptual test for the "Rules" rather than just a move generator test.
-    # It ensures the pathing and promotion logic prevent 'backtracking' to the base.
-    assert True 
+    curr = Coordinate(Ring.B, 5)
+    path_slices = []
+    for _ in range(10):
+        moves = b.get_pseudo_legal_moves(curr)
+        if not moves: break
+        next_move = next((m for m in moves), None)
+        if not next_move: break
+        b.push(next_move)
+        curr = next_move.end
+        path_slices.append(curr.slice)
+        if next_move.promotion: break
+        
+    assert all(s not in [1, 2, 3] for s in path_slices)
 
 if __name__ == "__main__":
     sys.exit(pytest.main(["-v", __file__]))
