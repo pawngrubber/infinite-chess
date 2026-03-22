@@ -15,12 +15,12 @@ def polar_to_cartesian(cx, cy, r, angle):
     }
 
 def generate_topology_svg(filename):
-    # Expanded canvas to 2000x2000 to provide plenty of margin
-    dwg = svgwrite.Drawing(filename, size=(2000, 2000), viewBox="0 0 2000 2000")
+    # Reverting to the original sensible 1200x1200 size
+    dwg = svgwrite.Drawing(filename, size=(1200, 1200), viewBox="0 0 1200 1200")
     dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='#000000'))
     
-    # Translation centered at 1000, 1000 with a 0.6 scale to fit the entire figure-eight
-    main_group = dwg.g(id='board-group', transform='translate(1000, 1000) scale(0.7) rotate(45) translate(-200, -200)')
+    # Original centered translation
+    main_group = dwg.g(id='board-group', transform='translate(600, 600) rotate(45) translate(-200, -200)')
     dwg.add(main_group)
 
     tile_size = 100
@@ -44,8 +44,6 @@ def generate_topology_svg(filename):
         p3 = polar_to_cartesian(cx, cy, r2, theta2)
         p4 = polar_to_cartesian(cx, cy, r1, theta2)
 
-        # Large-arc-flag is 0 (angles are small), Sweep-flag is 1 for r2 (CCW), 0 for r1 (CW)
-        # Note: SVG coordinate system Y is down, so we adjust sweep flags
         path_data = f"M {p1['x']} {p1['y']} L {p2['x']} {p2['y']} "
         path_data += f"A {r2} {r2} 0 0 1 {p3['x']} {p3['y']} "
         path_data += f"L {p4['x']} {p4['y']} "
