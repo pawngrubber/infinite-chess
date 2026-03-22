@@ -1,9 +1,25 @@
-node_modules/
-.venv/
+# Python
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+build/
 dist/
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vscode/
+
+# Environment
+.env
+.env.local
+
+# OS
 .DS_Store
-db.sqlite3
-.vite/
+Thumbs.db

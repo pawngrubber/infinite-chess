@@ -28,6 +28,13 @@ class Coordinate:
     def __hash__(self):
         return hash((self.ring, self.slice))
 
+    def to_dict(self):
+        return {"ring": self.ring.name, "slice": self.slice}
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        return cls(Ring[d["ring"]], d["slice"])
+
     def __repr__(self):
         return f"{self.ring.name}{self.slice}"
         

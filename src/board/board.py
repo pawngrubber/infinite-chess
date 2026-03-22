@@ -21,6 +21,14 @@ class Piece:
         self.direction = direction # For pawns: +1 or -1 along the slice
         self.moves_made = 0
 
+    def to_dict(self):
+        return {
+            "color": self.color.name,
+            "type": self.piece_type.name,
+            "direction": self.direction,
+            "moves_made": self.moves_made
+        }
+
     def __repr__(self):
         return f"{self.color.name[0]}{self.piece_type.name[0]}"
 
@@ -31,6 +39,15 @@ class Move:
         self.is_capture = is_capture
         self.is_en_passant = is_en_passant
         self.promotion = promotion
+
+    def to_dict(self):
+        return {
+            "start": self.start.to_dict(),
+            "end": self.end.to_dict(),
+            "is_capture": self.is_capture,
+            "is_en_passant": self.is_en_passant,
+            "promotion": self.promotion.name if self.promotion else None
+        }
 
     def __repr__(self):
         return f"{self.start}->{self.end}"
@@ -48,6 +65,13 @@ class Board:
         self.squares: Dict[Coordinate, Piece] = {}
         self.en_passant_target: Optional[Coordinate] = None
         self.turn = Color.WHITE
+
+    def to_dict(self):
+        return {
+            "squares": {str(sq): pc.to_dict() for sq, pc in self.squares.items()},
+            "turn": self.turn.name,
+            "en_passant_target": self.en_passant_target.to_dict() if self.en_passant_target else None
+        }
 
     def setup_board(self):
         self.squares.clear()
