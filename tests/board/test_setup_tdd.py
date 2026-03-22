@@ -3,8 +3,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from infinite_chess.logic import Coordinate, Ring
-from infinite_chess.board import Board, Color
+from board.logic import Coordinate, Ring
+from board.board import Board, Color
 
 def test_coordinate_serialization():
     """
