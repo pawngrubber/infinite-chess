@@ -15,12 +15,12 @@ def polar_to_cartesian(cx, cy, r, angle):
     }
 
 def generate_topology_svg(filename):
-    # Expanded canvas to 1600x1600 and adjusted translate to 800, 800 to center it.
-    dwg = svgwrite.Drawing(filename, size=(1600, 1600), viewBox="0 0 1600 1600")
+    # Expanded canvas to 2000x2000 to provide plenty of margin
+    dwg = svgwrite.Drawing(filename, size=(2000, 2000), viewBox="0 0 2000 2000")
     dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='#000000'))
     
-    # Translation centered at 800, 800
-    main_group = dwg.g(id='board-group', transform='translate(800, 800) rotate(45) translate(-200, -200)')
+    # Translation centered at 1000, 1000 with a 0.6 scale to fit the entire figure-eight
+    main_group = dwg.g(id='board-group', transform='translate(1000, 1000) scale(0.7) rotate(45) translate(-200, -200)')
     dwg.add(main_group)
 
     tile_size = 100
