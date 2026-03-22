@@ -4,8 +4,13 @@ version = "0.1.0"
 description = "Infinite Chess with a Lemniscate board"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-    "django"
+dependencies = []
+
+[project.optional-dependencies]
+server = [
+    "django",
+    "channels",
+    "daphne",
 ]
 
 [project.scripts]
@@ -24,7 +29,9 @@ where = ["src"]
 [dependency-groups]
 dev = [
     "pytest",
-    "pytest-django"
+]
+server-dev = [
+    "pytest-django",
 ]
 
 [tool.pytest.ini_options]

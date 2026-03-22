@@ -1,0 +1,2 @@
+[console_scripts]
+manage = server.manage:main

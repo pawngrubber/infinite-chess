@@ -1,0 +1,5 @@
+
+[server]
+django
+channels
+daphne

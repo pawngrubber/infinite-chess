@@ -5,9 +5,6 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    # Ensure the 'src' directory is in the path so we can find 'server' and 'board'
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.core.settings')
     try:
         from django.core.management import execute_from_command_line
