@@ -54,11 +54,11 @@ Pieces are symmetrically mirrored across the two loops in a wedge formation.
 
 <img src="assets/starting_position_topology.svg" width="1000" alt="Starting Position Topology">
 
-### Coordinates
-The board consists of 72 tiles defined by a polar-like coordinate system:
-- **Rings (A-D)**: Lettered from the innermost ring (A) to the outermost ring (D).
-- **Slices (1-18)**: Numbered sequentially around the infinity loop, starting near the center intersection. Slices 1-7 wrap around the right hole, 8-11 traverse the intersection, and 12-18 wrap around the left hole.
-<img src="assets/coordinate_mapping.svg" width="1000" alt="Board Coordinates">
+### Semantic Coordinate Mapping
+The board is indexed as a 1D continuous loop from Rank 1 to 18, ensuring a singular, unbroken path for each of the 4 continuous tracks (A-D).
+- **Tracks (A-D)**: Continuous lanes that orbit the loops and traverse the intersection.
+- **Ranks (1-18)**: Sequential positions along the figure-eight manifold.
+<img src="assets/semantic_coordinates.svg" width="1000" alt="Semantic Coordinate Mapping">
 
 Here are visual examples of how pieces navigate the intersecting infinite loops:
 
