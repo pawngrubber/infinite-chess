@@ -12,8 +12,8 @@ def main():
     assets_root_name = "assets"
     assets_root = os.path.join(test_dir, assets_root_name)
     
-    # 1. Cleanup old documentation and assets
-    print(f"Cleaning up old documentation and assets in {test_dir}...")
+    # 1. Cleanup old documentation and assets in the root
+    print(f"Cleaning up old documentation and root assets in {test_dir}...")
     for f in os.listdir(test_dir):
         file_path = os.path.join(test_dir, f)
         if f.endswith(".svg"):
@@ -47,9 +47,8 @@ def main():
         module_path = os.path.join(test_dir, test_file)
         md_file = os.path.join(test_dir, f"{module_name}.md")
         
-        # Subdirectory for this specific module's SVGs
+        # Subdirectory for this specific module's SVGs (only created if needed)
         module_assets_dir = os.path.join(assets_root, module_name)
-        os.makedirs(module_assets_dir, exist_ok=True)
         
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
@@ -64,6 +63,9 @@ def main():
         if not functions:
             print(f"Skipping {test_file} (no @scenario decorators found)")
             continue
+
+        # Now we know we have scenarios, so create the assets subdir
+        os.makedirs(module_assets_dir, exist_ok=True)
 
         md_content = [f"# {module_name.replace('_', ' ').title()}\n"]
         
@@ -91,7 +93,6 @@ def main():
             md_content.append(f"**Test**: `{func.__name__}`")
             md_content.append(f"\n**Description**:\n{s.description}")
             md_content.append(f"\n**Pass Condition (Boolean Check)**:\n{s.pass_condition}")
-            # Relative path from the .md file to the nested SVG
             md_content.append(f"\n<img src='{assets_root_name}/{module_name}/{svg_filename}' width='600'>\n")
             
         with open(md_file, "w") as f:
