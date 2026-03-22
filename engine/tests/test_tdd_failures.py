@@ -1,11 +1,10 @@
-import pytest
 import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from logic import Coordinate, Ring
-from board import Board, Piece, PieceType, Color, Move
+from infinite_chess.logic import Coordinate, Ring
+from infinite_chess.board import Board, Piece, PieceType, Color
 
 def test_bishop_color_constraint():
     """
@@ -72,9 +71,9 @@ def test_is_checkmate():
     # Protect the B1 Rook so the King cannot capture it
     b.add_piece(Coordinate(Ring.C, 1), Piece(Color.WHITE, PieceType.ROOK))
     
-    assert b.is_in_check(Color.BLACK) == True
+    assert b.is_in_check(Color.BLACK)
     # This method doesn't exist yet! (Wait, I implemented it, so it should be true now)
-    assert b.is_checkmate(Color.BLACK) == True
+    assert b.is_checkmate(Color.BLACK)
 
 def test_is_stalemate():
     """
@@ -89,9 +88,9 @@ def test_is_stalemate():
     b.add_piece(Coordinate(Ring.C, 18), Piece(Color.WHITE, PieceType.ROOK))
     b.add_piece(Coordinate(Ring.B, 3), Piece(Color.WHITE, PieceType.ROOK))
     
-    assert b.is_in_check(Color.BLACK) == False
+    assert not b.is_in_check(Color.BLACK)
     # This method doesn't exist yet!
-    assert b.is_stalemate(Color.BLACK) == True
+    assert b.is_stalemate(Color.BLACK)
 
 def test_knight_true_lemniscate_jump():
     """

@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Dict, List, Set, Optional, Tuple
-from logic import Coordinate, Ring, get_knight_moves, get_king_moves
+from .logic import Coordinate, Ring, get_knight_moves, get_king_moves
 
 class Color(Enum):
     WHITE = 1

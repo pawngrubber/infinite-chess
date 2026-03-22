@@ -1,11 +1,10 @@
-import pytest
 import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from logic import Coordinate, Ring
-from board import Board, Piece, PieceType, Color
+from infinite_chess.logic import Coordinate, Ring
+from infinite_chess.board import Board, Color
 
 def test_coordinate_serialization():
     """

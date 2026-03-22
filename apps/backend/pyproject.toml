@@ -1,13 +1,25 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Infinite Chess Matchmaking Backend"
-readme = "README.md"
-requires-python = ">=3.12"
+description = "Infinite Chess Django Server"
+requires-python = ">=3.10"
 dependencies = [
-    "django>=5.0",
-    "channels>=4.0",
-    "daphne>=4.1",
-    "django-cors-headers>=4.3",
-    "channels-redis>=4.2",
+    "django",
+    "channels[daphne]",
+    "infinite-chess-engine"
+]
+
+[tool.uv.sources]
+infinite-chess-engine = { path = "../../engine" }
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-django"
 ]

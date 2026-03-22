@@ -11,7 +11,7 @@ import os
 # Add backend to path for imports
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from logic import Coordinate, Ring, get_rook_moves, get_bishop_moves, get_knight_moves, get_queen_moves, get_king_moves, get_pawn_moves
+from infinite_chess.logic import Coordinate, Ring, get_rook_moves, get_bishop_moves, get_knight_moves, get_king_moves, get_pawn_moves
 
 def test_coordinate_wrapping():
     c = Coordinate(Ring.A, 19)

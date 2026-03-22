@@ -10,8 +10,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from logic import Coordinate, Ring
-from board import Board, Piece, PieceType, Color, Move
+from infinite_chess.logic import Coordinate, Ring
+from infinite_chess.board import Board, Piece, PieceType, Color
 
 def test_around_the_world_check():
     """
@@ -27,7 +27,7 @@ def test_around_the_world_check():
     
     # Is black king attacked? Yes, from A3 -> A2 -> A1 and also around the long way.
     # Actually wait, the Rook is attacking from 3 to 1 via 2, and also via 4, 5... 18, 1.
-    assert b.is_in_check(Color.BLACK) == True
+    assert b.is_in_check(Color.BLACK)
 
 def test_self_intersection():
     """
@@ -90,7 +90,7 @@ def test_en_passant():
     for m in moves:
         if m.end == Coordinate(Ring.B, 5) and m.is_en_passant:
             found_ep = True
-    assert found_ep == True
+    assert found_ep
 
 def test_king_teleportation_check():
     """
@@ -112,7 +112,7 @@ def test_king_teleportation_check():
     for m in legal_moves:
         if m.end == Coordinate(Ring.A, 18):
             found_capture = True
-    assert found_capture == True
+    assert found_capture
 
 if __name__ == "__main__":
     sys.exit(pytest.main(["-v", __file__]))

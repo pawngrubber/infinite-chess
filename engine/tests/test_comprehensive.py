@@ -4,8 +4,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from logic import Coordinate, Ring, get_knight_moves, get_king_moves, get_rook_moves, get_bishop_moves
-from board import Board, Piece, PieceType, Color, Move
+from infinite_chess.logic import Coordinate, Ring
+from infinite_chess.board import Board, Piece, PieceType, Color, Move
 
 # -------------------------------------------------------------------
 # 1. CORE PIECE MOVEMENT (No Board Blockers)
@@ -87,7 +87,7 @@ def test_rook_capture_enemy():
     moves = b.get_pseudo_legal_moves(Coordinate(Ring.A, 1))
     capture_move = next((m for m in moves if m.end == Coordinate(Ring.A, 3)), None)
     assert capture_move is not None
-    assert capture_move.is_capture == True
+    assert capture_move.is_capture
     # Cannot go through the enemy
     assert Coordinate(Ring.A, 4) not in [m.end for m in moves]
 
@@ -98,7 +98,7 @@ def test_bishop_capture_enemy():
     moves = b.get_pseudo_legal_moves(Coordinate(Ring.A, 1))
     capture_move = next((m for m in moves if m.end == Coordinate(Ring.B, 2)), None)
     assert capture_move is not None
-    assert capture_move.is_capture == True
+    assert capture_move.is_capture
     assert Coordinate(Ring.C, 3) not in [m.end for m in moves]
 
 # -------------------------------------------------------------------
@@ -124,7 +124,7 @@ def test_king_teleportation_crossing():
     moves = b.get_pseudo_legal_moves(Coordinate(Ring.B, 18))
     capture_move = next((m for m in moves if m.end == Coordinate(Ring.B, 9)), None)
     assert capture_move is not None
-    assert capture_move.is_capture == True
+    assert capture_move.is_capture
 
 # -------------------------------------------------------------------
 # 4. INFINITE LOOP TOPOLOGY
@@ -197,7 +197,7 @@ def test_pinned_piece_projects_check():
 
     # The White Queen is legally pinned to the White King, but it STILL attacks C3 where the Black King is.
     # We expect is_in_check(BLACK) to be True!
-    assert b.is_in_check(Color.BLACK) == True
+    assert b.is_in_check(Color.BLACK)
 
 # -------------------------------------------------------------------
 # 6. CHECK EVASION PRECEDENCE
@@ -215,7 +215,7 @@ def test_double_check_forces_king_move():
     b.add_piece(Coordinate(Ring.A, 3), Piece(Color.BLACK, PieceType.ROOK))
     b.add_piece(Coordinate(Ring.B, 2), Piece(Color.BLACK, PieceType.BISHOP))
     
-    assert b.is_in_check(Color.WHITE) == True
+    assert b.is_in_check(Color.WHITE)
     
     # White Rook should have NO legal moves because it's a double check
     rook_moves = b.get_legal_moves(Coordinate(Ring.C, 1))
@@ -238,7 +238,7 @@ def test_around_the_world_check_advanced():
     b.add_piece(Coordinate(Ring.A, 4), Piece(Color.BLACK, PieceType.ROOK))
     # Black Rook attacks A5 directly (distance 1) AND around the loop (distance 17)
     
-    assert b.is_in_check(Color.WHITE) == True
+    assert b.is_in_check(Color.WHITE)
     
     # If White blocks the short path
     b.add_piece(Coordinate(Ring.A, 6), Piece(Color.WHITE, PieceType.KNIGHT))
@@ -254,7 +254,7 @@ def test_around_the_world_check_advanced():
     b2.add_piece(Coordinate(Ring.A, 4), Piece(Color.WHITE, PieceType.PAWN))
     
     # Is it STILL in check? Yes, because A3 -> A2 -> A1 -> A18 ... -> A5
-    assert b2.is_in_check(Color.WHITE) == True
+    assert b2.is_in_check(Color.WHITE)
 
 if __name__ == "__main__":
     sys.exit(pytest.main(["-v", __file__]))
