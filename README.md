@@ -40,6 +40,7 @@ infinite-chess/
 ### Testing
 - **All Tests**: `uv run pytest`
 - **Logic Only**: `uv run pytest tests/board/`
+- **Visual Tests**: [View Visual Test Cases](tests/VISUAL_TESTS.md) (Rendered board states for complex logic)
 
 ## Movement Examples & Coordinate Geometry
 The unique lemniscate shape alters the standard movement paths and coordinate geometry. 
